@@ -1,0 +1,31 @@
+{
+  "name": "content-amplify-hub",
+  "version": "1.0.0",
+  "description": "Automated content publishing from Notion DB to Dev.to, Hashnode, Twitter, and LinkedIn using serverless functions and scheduled tasks.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/siddhant-vij/Content-Amplify-Hub.git"
+  },
+  "keywords": [
+    "automation",
+    "content-creation",
+    "notion-api",
+    "serverless",
+    "vercel",
+    "github-actions",
+    "social-media",
+    "blog-posting",
+    "nodejs",
+    "api-integration"
+  ],
+  "author": "siddhant-vij",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/siddhant-vij/Content-Amplify-Hub/issues"
+  },
+  "homepage": "https://github.com/siddhant-vij/Content-Amplify-Hub#readme"
+}
