@@ -6,6 +6,11 @@
   "scripts": {
     "start": "node main.js"
   },
+  "type": "module",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "dotenv": "^16.4.5"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/siddhant-vij/Content-Amplify-Hub.git"
