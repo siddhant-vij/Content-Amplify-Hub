@@ -12,8 +12,25 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-export const getDatabase = async () => {
-  return await notion.databases.retrieve({
-    database_id: process.env.NOTION_DB_ID,
+const databaseId = process.env.NOTION_DB_ID;
+
+export const getPageToBePublished = async () => {
+  const now = new Date();
+  const response = await notion.databases.query({
+    database_id: databaseId,
+    filter: {
+      property: "Publishing Date",
+      date: {
+        is_not_empty: true,
+        after: now,
+      },
+    },
+    sorts: [
+      {
+        property: "Publishing Date",
+        direction: "ascending",
+      },
+    ],
   });
+  return response.results[0];
 };
