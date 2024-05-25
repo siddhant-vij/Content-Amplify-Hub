@@ -1,8 +1,9 @@
-import { getPageToBePublished } from "./utils/fetch/notion.js";
+import { getPageProperties, getPageContentMarkdown } from "./utils/fetch/notion.js";
 
 const main = async () => {
-  const page = await getPageToBePublished();
-  console.log(page);
+  const pageDetails = await getPageProperties();
+  const pageContent = await getPageContentMarkdown(pageDetails.id);
+  console.log(pageContent);
 };
 
 main();
