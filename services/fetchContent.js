@@ -16,7 +16,6 @@ const notionData = {
     title: "",
     publicationId: "",
     contentMarkdown: "",
-    publishedAt: "",
     coverImageOptions: {
       coverImageURL: "",
       isCoverAttributionHidden: true,
@@ -68,8 +67,6 @@ export const fetchContent = async () => {
       notionData.hashnodeContent.publicationId =
         process.env.HASHNODE_PUBLICATION_ID;
       notionData.hashnodeContent.contentMarkdown = hnBodyMd;
-      notionData.hashnodeContent.publishedAt =
-        pageDetails.properties["Publishing Date"].date.start;
       notionData.hashnodeContent.coverImageOptions.coverImageURL =
         pageDetails.properties["HN Cover Image"].url;
       notionData.hashnodeContent.tags = pageDetails.properties[

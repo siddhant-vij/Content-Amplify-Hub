@@ -11,6 +11,7 @@
     "@notionhq/client": "^2.2.15",
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
+    "graphql-request": "^7.0.1",
     "notion-to-md": "^3.1.1"
   },
   "repository": {
