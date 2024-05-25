@@ -41,11 +41,8 @@ const notionData = {
 };
 
 const convertDevToHnRemoveToc = (devBodyMd) => {
-  const startIndex = devBodyMd.indexOf("## **Table of Content**");
-  const endIndex =
-    devBodyMd.indexOf("(#conclusion)\n\n") + "(#conclusion)\n\n".length;
-  const hnBodyMdWithoutToc =
-    devBodyMd.slice(0, startIndex) + devBodyMd.slice(endIndex);
+  const startIndex = devBodyMd.indexOf("## Introduction");
+  const hnBodyMdWithoutToc = devBodyMd.slice(startIndex);
   return hnBodyMdWithoutToc;
 };
 

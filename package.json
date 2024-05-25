@@ -9,6 +9,7 @@
   "type": "module",
   "dependencies": {
     "@notionhq/client": "^2.2.15",
+    "axios": "^1.7.2",
     "dotenv": "^16.4.5",
     "notion-to-md": "^3.1.1"
   },
