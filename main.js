@@ -1,9 +1,8 @@
-import { getPageProperties, getPageContentMarkdown } from "./utils/fetch/notion.js";
+import { fetchContent } from "./services/fetchContent.js";
 
 const main = async () => {
-  const pageDetails = await getPageProperties();
-  const pageContent = await getPageContentMarkdown(pageDetails.id);
-  console.log(pageContent);
+  const notionData = await fetchContent();
+  console.log(notionData);
 };
 
 main();
