@@ -10,23 +10,32 @@ const databaseId = process.env.NOTION_DB_ID;
 
 export const getPageProperties = async () => {
   const now = new Date();
-  const response = await notion.databases.query({
-    database_id: databaseId,
-    filter: {
-      property: "Publishing Date",
-      date: {
-        is_not_empty: true,
-        after: now,
-      },
-    },
-    sorts: [
-      {
+  try {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+      filter: {
         property: "Publishing Date",
-        direction: "ascending",
+        date: {
+          is_not_empty: true,
+          after: now,
+        },
       },
-    ],
-  });
-  return response.results[0];
+      sorts: [
+        {
+          property: "Publishing Date",
+          direction: "ascending",
+        },
+      ],
+    });
+    if (response.results.length === 0) {
+      console.error("No results found");
+      process.exit(1);
+    }
+    return response.results[0];
+  } catch (error) {
+    console.error("Notion Fetch - API Error:", error.message);
+    process.exit(1);
+  }
 };
 
 const n2m = new NotionToMarkdown({ notionClient: notion });

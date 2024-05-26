@@ -1,14 +1,9 @@
-import { gql, GraphQLClient } from "graphql-request";
+import fetch from "node-fetch";
 
 const HASHNODE_GQL_URL = "https://gql.hashnode.com";
+const HASHNODE_TOKEN = process.env.HASHNODE_TOKEN;
 
-const hashnodeClient = new GraphQLClient(HASHNODE_GQL_URL, {
-  headers: {
-    Authorization: process.env.HASHNODE_TOKEN,
-  },
-});
-
-const publishPostMutation = gql`
+const publishPostMutation = `
   mutation PublishPost($input: PublishPostInput!) {
     publishPost(input: $input) {
       post {
@@ -43,6 +38,27 @@ const publishPostMutation = gql`
   }
 `;
 
+const fetchGraphQL = async (query, variables) => {
+  const response = await fetch(HASHNODE_GQL_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: HASHNODE_TOKEN,
+    },
+    body: JSON.stringify({
+      query,
+      variables,
+    }),
+  });
+
+  const result = await response.json();
+  if (result.errors) {
+    console.error("Hashnode - GQL Error:", result.errors[0].message);
+    process.exit(1);
+  }
+  return result.data;
+};
+
 export const publishHashnode = async (hashnodeContent) => {
   const {
     title,
@@ -66,7 +82,6 @@ export const publishHashnode = async (hashnodeContent) => {
     },
   };
 
-  const response = await hashnodeClient.request(publishPostMutation, variables);
-
+  const response = await fetchGraphQL(publishPostMutation, variables);
   return response.publishPost.post.url;
 };

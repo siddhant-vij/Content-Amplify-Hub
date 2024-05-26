@@ -43,8 +43,18 @@ const notionData = {
 };
 
 const main = async () => {
-  await fetchContent(notionData);
-  await publishContent(notionData);
+  try {
+    await fetchContent(notionData);
+  } catch (error) {
+    console.error("Notion Fetch - Error:", error.message);
+    process.exit(1);
+  }
+  try {
+    await publishContent(notionData);
+  } catch (error) {
+    console.error("Publish - Error:", error.message);
+    process.exit(1);
+  }
 };
 
 main();
