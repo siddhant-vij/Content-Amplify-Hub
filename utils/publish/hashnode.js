@@ -68,5 +68,5 @@ export const publishHashnode = async (hashnodeContent) => {
 
   const response = await hashnodeClient.request(publishPostMutation, variables);
 
-  return response.publishPost.post;
+  return response.publishPost.post.url;
 };

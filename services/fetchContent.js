@@ -3,54 +3,19 @@ import {
   getPageContentMarkdown,
 } from "../utils/fetch/notion.js";
 
-const notionData = {
-  channel: "",
-  devToContent: {
-    title: "",
-    main_image: "",
-    tags: [],
-    body_markdown: "",
-    published: true,
-  },
-  hashnodeContent: {
-    title: "",
-    publicationId: "",
-    contentMarkdown: "",
-    coverImageOptions: {
-      coverImageURL: "",
-      isCoverAttributionHidden: true,
-      stickCoverToBottom: false,
-    },
-    tags: [],
-    metaTags: {
-      title: "",
-      description: "",
-      image: "",
-    },
-    settings: {
-      enableTableOfContent: true,
-    },
-  },
-  linkedInContent: {
-    content: "",
-  },
-  twitterContent: {
-    content: "",
-  },
-};
-
 const convertDevToHnRemoveToc = (devBodyMd) => {
   const startIndex = devBodyMd.indexOf("## Introduction");
   const hnBodyMdWithoutToc = devBodyMd.slice(startIndex);
   return hnBodyMdWithoutToc;
 };
 
-export const fetchContent = async () => {
+export const fetchContent = async (notionData) => {
   const pageDetails = await getPageProperties();
   notionData.channel = pageDetails.properties["Channel"].select.name;
+  notionData.pageId = pageDetails.id;
   switch (notionData.channel) {
     case "Blog Post":
-      const devBodyMd = await getPageContentMarkdown(pageDetails.id);
+      const devBodyMd = await getPageContentMarkdown(notionData.pageId);
       const hnBodyMd = convertDevToHnRemoveToc(devBodyMd);
 
       notionData.devToContent.title =
@@ -81,12 +46,12 @@ export const fetchContent = async () => {
       break;
     case "LinkedIn":
       notionData.linkedInContent.content = await getPageContentMarkdown(
-        pageDetails.id
+        notionData.pageId
       );
       break;
     case "Twitter":
       notionData.twitterContent.content = await getPageContentMarkdown(
-        pageDetails.id
+        notionData.pageId
       );
       break;
   }

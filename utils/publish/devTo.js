@@ -19,5 +19,5 @@ export const publishDevTo = async (devtoContent) => {
       },
     }
   );
-  return data;
+  return data.url;
 };
