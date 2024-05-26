@@ -9,6 +9,12 @@ const convertDevToHnRemoveToc = (devBodyMd) => {
   return hnBodyMdWithoutToc;
 };
 
+const removeMarkdownLinks = (inputMdStr) => {
+  const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const result = inputMdStr.replace(markdownLinkPattern, "$2");
+  return result;
+};
+
 export const fetchContent = async (notionData) => {
   const pageDetails = await getPageProperties();
   notionData.channel = pageDetails.properties["Channel"].select.name;
@@ -50,8 +56,8 @@ export const fetchContent = async (notionData) => {
       );
       break;
     case "Twitter":
-      notionData.twitterContent.content = await getPageContentMarkdown(
-        notionData.pageId
+      notionData.twitterContent.content = removeMarkdownLinks(
+        await getPageContentMarkdown(notionData.pageId)
       );
       break;
   }
