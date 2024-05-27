@@ -27,27 +27,33 @@ const uploadImage = async (imageUrl) => {
   }
 };
 
-export const publishTwitter = async (twitterContent) => {
+const buildTweetOptions = async (twitterContent) => {
+  const options = {};
+
+  if (twitterContent.retweetId !== "") {
+    options.quote_tweet_id = twitterContent.retweetId;
+  }
+
   if (twitterContent.imageUrl !== "") {
     const mediaId = await uploadImage(twitterContent.imageUrl);
-    try {
-      const response = await twitterClient.v2.tweet(twitterContent.content, {
-        media: {
-          media_ids: [mediaId],
-        },
-      });
-      return `https://x.com/${twitterProfileName}/status/${response.data.id}`;
-    } catch (error) {
-      console.error("Twitter - API Error:", error.message);
-      process.exit(1);
-    }
-  } else {
-    try {
-      const response = await twitterClient.v2.tweet(twitterContent.content);
-      return `https://x.com/${twitterProfileName}/status/${response.data.id}`;
-    } catch (error) {
-      console.error("Twitter - API Error:", error.message);
-      process.exit(1);
-    }
+    options.media = {
+      media_ids: [mediaId],
+    };
+  }
+
+  return options;
+};
+
+export const publishTwitter = async (twitterContent) => {
+  let options = await buildTweetOptions(twitterContent);
+  try {
+    const response = await twitterClient.v2.tweet(
+      twitterContent.content,
+      options
+    );
+    return `https://x.com/${twitterProfileName}/status/${response.data.id}`;
+  } catch (error) {
+    console.error("Twitter - API Error:", error.message);
+    process.exit(1);
   }
 };

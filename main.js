@@ -39,6 +39,7 @@ const notionData = {
   twitterContent: {
     content: "",
     imageUrl: "",
+    retweetId: "",
     publishedUrl: "",
   },
 };

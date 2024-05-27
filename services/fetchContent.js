@@ -65,6 +65,12 @@ export const fetchContent = async (notionData) => {
       } else {
         notionData.twitterContent.imageUrl = "";
       }
+      if (pageDetails.properties["Retweet Id"].rich_text.length !== 0) {
+        notionData.twitterContent.retweetId =
+          pageDetails.properties["Retweet Id"].rich_text[0].plain_text;
+      } else {
+        notionData.twitterContent.retweetId = "";
+      }
       break;
   }
   return notionData;
