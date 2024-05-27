@@ -38,6 +38,7 @@ const notionData = {
   },
   twitterContent: {
     content: "",
+    imageUrl: "",
     publishedUrl: "",
   },
 };

@@ -59,6 +59,12 @@ export const fetchContent = async (notionData) => {
       notionData.twitterContent.content = removeMarkdownLinks(
         await getPageContentMarkdown(notionData.pageId)
       );
+      if (pageDetails.properties["Twitter Image"].url !== null) {
+        notionData.twitterContent.imageUrl =
+          pageDetails.properties["Twitter Image"].url;
+      } else {
+        notionData.twitterContent.imageUrl = "";
+      }
       break;
   }
   return notionData;
