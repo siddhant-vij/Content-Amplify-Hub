@@ -1,8 +1,8 @@
 /*
 Step 3: Generate URN
 - Uncomment the line below at the end of this file:
-await getLinkedInURN(process.env.LINKEDIN_ACCESS_TOKEN);
-- Run this file with: node ./utils/publish/linkedIn.js
+- await getLinkedInURN();
+- Run this file with: node utils/publish/linkedIn.js
 
 - To be run only once to get the URN (in the terminal) for the LinkedIn User with the access token (obtained in last steps). Copy paste the URN in .env file: LINKEDIN_URN
 - It can take some time - I think it has t do with the LinkedIn API and how it's implemented - but it sucks big time!
@@ -31,7 +31,7 @@ at process.processTimers (node:internal/timers:514:7) {
   port: 443 (and even 80)
 }
 
-- The getLinkedInURN() also created similar errors, but it just randomly worked once and I copied the URN here - but it also failed a lot of times - posting has just not worked at all.
+- The getLinkedInURN() also created similar errors, but it just randomly worked once and I copied the URN here - but it also failed a lot of times.
 
 - I'm sure that it's not a rate limiting error from the developer portal & also, checking in the code.
 
@@ -57,8 +57,9 @@ import axios from "axios";
 import { RestliClient } from "linkedin-api-client";
 import "dotenv/config";
 
-// Common function to construct the LinkedIn post data
-const constructLinkedInPostData = (linkedInContent) => ({
+const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
+
+const linkedInPostData = (linkedInContent) => ({
   author: "urn:li:person:5QawhgJm1Y",
   lifecycleState: "PUBLISHED",
   specificContent: {
@@ -88,9 +89,7 @@ const handleLinkedInError = (status, responseBody, clientType) => {
       )}`;
       break;
     default:
-      errorMessage = `${clientType} Error: ${JSON.stringify(
-        responseBody
-      )}`;
+      errorMessage = `${clientType} Error: ${JSON.stringify(responseBody)}`;
   }
   throw new Error(errorMessage);
 };
@@ -140,11 +139,10 @@ export const publishLinkedIn = async (linkedInContent) => {
 
 const publishLinkedInJsClient = async (linkedInContent) => {
   const client = new RestliClient();
-  const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
   try {
     const response = await client.create({
       resourcePath: "/ugcPosts",
-      entity: constructLinkedInPostData(linkedInContent),
+      entity: linkedInPostData(linkedInContent),
       accessToken,
     });
     if (response.status == 201) {
@@ -167,10 +165,10 @@ const publishLinkedInAxios = async (linkedInContent) => {
   try {
     const response = await axios.post(
       "https://api.linkedin.com/v2/ugcPosts",
-      constructLinkedInPostData(linkedInContent),
+      linkedInPostData(linkedInContent),
       {
         headers: {
-          Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
           "X-Restli-Protocol-Version": "2.0.0",
         },
@@ -197,11 +195,11 @@ const publishLinkedInRequest = async (linkedInContent) => {
   const hostname = "api.linkedin.com";
   const path = "/v2/ugcPosts";
   const headers = {
-    Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
+    Authorization: `Bearer ${accessToken}`,
     "Content-Type": "application/json",
     "X-Restli-Protocol-Version": "2.0.0",
   };
-  const body = JSON.stringify(constructLinkedInPostData(linkedInContent));
+  const body = JSON.stringify(linkedInPostData(linkedInContent));
   try {
     const response = await _request(method, hostname, path, headers, body);
     if (response.status == 201) {
@@ -264,7 +262,8 @@ const _request = (method, hostname, path, headers, body, retries = 4) => {
   });
 };
 
-const getLinkedInURN = async (accessToken) => {
+// This function can also be converted to be used as error-reducing combination of three functions (above for posting to LinkedIn) - but since URN is only needed once - I prefer running it manually until I get the results.
+const getLinkedInURN = async () => {
   const method = "GET";
   const hostname = "api.linkedin.com";
   const path = "/v2/userinfo";
@@ -292,4 +291,4 @@ const getLinkedInURN = async (accessToken) => {
   }
 };
 
-// await getLinkedInURN(process.env.LINKEDIN_ACCESS_TOKEN);
+// await getLinkedInURN();

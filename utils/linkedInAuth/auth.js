@@ -8,7 +8,7 @@ Step 1: Register the App
 
 Step 2: Generate Access Token
 
-- Start the webserver: node linkedInAuth.js
+- Start the webserver: node utils/linkedInAuth/auth.js
 
 - In the browser, navigate to http://localhost:3000 to get an access_token in the token.json file.
 - Verify the access token in the browser at https://www.linkedin.com/developers/tools/oauth/token-inspector.
