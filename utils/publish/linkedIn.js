@@ -13,7 +13,7 @@ Looks to me that LinkedIn doesn't want to have consumer apps built on top of API
 - with & without retires.
 - different access tokens.
 - http & https requests.
-- request creation (as below) & axios requests.
+- request creation & axios requests.
 - Even tried with the official JS client at https://github.com/linkedin-developers/linkedin-api-js-client.
 
 It just doesn't work. The error is always as follows:
@@ -42,6 +42,7 @@ Error: connect ETIMEDOUT 108.174.10.22:443
 */
 
 import https from "https";
+import axios from "axios";
 import "dotenv/config";
 
 const getLinkedInURN = async (accessToken) => {
@@ -73,31 +74,32 @@ const getLinkedInURN = async (accessToken) => {
 };
 
 export const publishLinkedIn = async (linkedInContent) => {
-  const method = "POST";
-  const hostname = "api.linkedin.com";
-  const path = "/v2/ugcPosts";
-  const headers = {
-    Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
-    "Content-Type": "application/json",
-    "X-Restli-Protocol-Version": "2.0.0",
-  };
-  const body = JSON.stringify({
-    author: "urn:li:person:5QawhgJm1Y",
-    lifecycleState: "PUBLISHED",
-    specificContent: {
-      "com.linkedin.ugc.ShareContent": {
-        shareCommentary: {
-          text: linkedInContent.content,
-        },
-        shareMediaCategory: "NONE",
-      },
-    },
-    visibility: {
-      "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-    },
-  });
   try {
-    const response = await _request(method, hostname, path, headers, body);
+    const response = await axios.post(
+      "https://api.linkedin.com/v2/ugcPosts",
+      {
+        author: "urn:li:person:5QawhgJm1Y",
+        lifecycleState: "PUBLISHED",
+        specificContent: {
+          "com.linkedin.ugc.ShareContent": {
+            shareCommentary: {
+              text: linkedInContent.content,
+            },
+            shareMediaCategory: "NONE",
+          },
+        },
+        visibility: {
+          "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Restli-Protocol-Version": "2.0.0",
+          Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
+        },
+      }
+    );
     if (response.status == 201) {
       return (
         "https://linkedin.com/feed/update/" + response.headers["x-restli-id"]
@@ -115,6 +117,49 @@ export const publishLinkedIn = async (linkedInContent) => {
   }
 };
 
+// export const publishLinkedIn = async (linkedInContent) => {
+//   const method = "POST";
+//   const hostname = "api.linkedin.com";
+//   const path = "/v2/ugcPosts";
+//   const headers = {
+//     Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
+//     "Content-Type": "application/json",
+//     "X-Restli-Protocol-Version": "2.0.0",
+//   };
+//   const body = JSON.stringify({
+//     author: "urn:li:person:5QawhgJm1Y",
+//     lifecycleState: "PUBLISHED",
+//     specificContent: {
+//       "com.linkedin.ugc.ShareContent": {
+//         shareCommentary: {
+//           text: linkedInContent.content,
+//         },
+//         shareMediaCategory: "NONE",
+//       },
+//     },
+//     visibility: {
+//       "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+//     },
+//   });
+//   try {
+//     const response = await _request(method, hostname, path, headers, body);
+//     if (response.status == 201) {
+//       return (
+//         "https://linkedin.com/feed/update/" + response.headers["x-restli-id"]
+//       );
+//     } else if (response.status == 429) {
+//       console.error("LinkedIn - API Rate Limit Error:", response.body);
+//       process.exit(1);
+//     } else {
+//       console.error("LinkedIn - API Response Error:", response.body);
+//       process.exit(1);
+//     }
+//   } catch (e) {
+//     console.error("LinkedIn - API Request Error:", e);
+//     process.exit(1);
+//   }
+// };
+
 // https request wrapper
 const _request = (method, hostname, path, headers, body, retries = 4) => {
   return new Promise((resolve, reject) => {
@@ -126,6 +171,10 @@ const _request = (method, hostname, path, headers, body, retries = 4) => {
       rejectUnauthorized: false,
       timeout: 20000,
     };
+    if (method !== "GET") {
+      reqOpts.headers["Content-Length"] = Buffer.byteLength(body);
+      delete reqOpts.headers["Transfer-Encoding"];
+    }
     let resBody = "";
     const attempt = (retries) => {
       const req = https.request(reqOpts, (res) => {
