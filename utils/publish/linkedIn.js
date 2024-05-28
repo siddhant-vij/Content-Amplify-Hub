@@ -20,10 +20,10 @@ It just doesn't work. The error is always as follows:
 LinkedIn - API Request Error: AggregateError [ETIMEDOUT]
 code: 'ETIMEDOUT'
 Error: connect ETIMEDOUT 108.174.10.22:443
-    at createConnectionError (node:net:1647:14)
-    at Timeout.internalConnectMultipleTimeout (node:net:1706:38)
-    at listOnTimeout (node:internal/timers:575:11)
-    at process.processTimers (node:internal/timers:514:7) {
+at createConnectionError (node:net:1647:14)
+at Timeout.internalConnectMultipleTimeout (node:net:1706:38)
+at listOnTimeout (node:internal/timers:575:11)
+at process.processTimers (node:internal/timers:514:7) {
   errno: -110,
   code: 'ETIMEDOUT',
   syscall: 'connect',
@@ -37,66 +37,142 @@ Error: connect ETIMEDOUT 108.174.10.22:443
 
 - I'm not sure how to fix this.
 
+--------------------------------------------------
+This could very well be an timely rate limit - something other than the daily limits presented in developer console. If yes,
+    - Requires documentation update OR
+    - A reason as to why ETIMEDOUT?
+--------------------------------------------------
+
 - If it's a code issue,I'll be more than happy to change this, but for now I'm pushing this to origin & commenting out all LinkedIn-related posting actions in this project.
-- Instead, I'll be sending an email reminder to the user to manually schedule posts on LinkedIn on a weekly basis.
+- Instead, I'll be following the steps below:
+    - Make max. 4 requests (until 201 status code) with each of the following in the same order:
+        - publishLinkedInJsClient()
+        - publishLinkedInAxios()
+        - publishLinkedInRequest()
+    - If all still failing, I'll be sending an email reminder to the user to manually post on LinkedIn.
 */
 
 import https from "https";
 import axios from "axios";
+import { RestliClient } from "linkedin-api-client";
 import "dotenv/config";
 
-const getLinkedInURN = async (accessToken) => {
-  const method = "GET";
-  const hostname = "api.linkedin.com";
-  const path = "/v2/userinfo";
-  const headers = {
-    Authorization: `Bearer ${accessToken}`,
-    "Content-Type": "application/json",
-    "X-Restli-Protocol-Version": "2.0.0",
-  };
-  const body = "";
-  try {
-    const response = await _request(method, hostname, path, headers, body);
-    if (response.status == 200) {
-      const respBody = JSON.parse(response.body);
-      console.log("LinkedIn - URN:", respBody.sub);
-    } else if (response.status == 429) {
-      console.error("LinkedIn - API Rate Limit Error:", response.body);
-      process.exit(1);
-    } else {
-      console.error("LinkedIn - Token Response Error:", response.body);
-      process.exit(1);
+// Common function to construct the LinkedIn post data
+const constructLinkedInPostData = (linkedInContent) => ({
+  author: "urn:li:person:5QawhgJm1Y",
+  lifecycleState: "PUBLISHED",
+  specificContent: {
+    "com.linkedin.ugc.ShareContent": {
+      shareCommentary: {
+        text: linkedInContent.content,
+      },
+      shareMediaCategory: "NONE",
+    },
+  },
+  visibility: {
+    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+  },
+});
+
+const handleLinkedInError = (status, responseBody, clientType) => {
+  let errorMessage;
+  switch (status) {
+    case 422:
+      errorMessage = `${clientType} Content Duplication: ${JSON.stringify(
+        responseBody.message
+      )}`;
+      break;
+    case 429:
+      errorMessage = `${clientType} Rate Limit Error: ${JSON.stringify(
+        responseBody
+      )}`;
+      break;
+    default:
+      errorMessage = `${clientType} Error: ${JSON.stringify(
+        responseBody
+      )}`;
+  }
+  throw new Error(errorMessage);
+};
+
+const retryOperation = async (operation, attempts, delay) => {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (i < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)));
+      } else {
+        throw error;
+      }
     }
-  } catch (e) {
-    console.error("LinkedIn - Token Request Error:", e);
-    process.exit(1);
   }
 };
 
 export const publishLinkedIn = async (linkedInContent) => {
   try {
+    return await retryOperation(
+      () => publishLinkedInJsClient(linkedInContent),
+      4,
+      2000
+    );
+  } catch (error) {
+    console.error("publishLinkedInJsClient failed, trying Axios");
+  }
+
+  try {
+    return await retryOperation(
+      () => publishLinkedInAxios(linkedInContent),
+      4,
+      2000
+    );
+  } catch (error) {
+    console.error("publishLinkedInAxios failed, trying Request");
+  }
+
+  try {
+    return await publishLinkedInRequest(linkedInContent);
+  } catch (error) {
+    console.error("publishLinkedInRequest failed");
+    process.exit(1);
+  }
+};
+
+const publishLinkedInJsClient = async (linkedInContent) => {
+  const client = new RestliClient();
+  const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
+  try {
+    const response = await client.create({
+      resourcePath: "/ugcPosts",
+      entity: constructLinkedInPostData(linkedInContent),
+      accessToken,
+    });
+    if (response.status == 201) {
+      return (
+        "https://linkedin.com/feed/update/" + response.headers["x-restli-id"]
+      );
+    } else {
+      handleLinkedInError(
+        response.status,
+        response.data || response.body,
+        "LinkedIn - JsClient"
+      );
+    }
+  } catch (e) {
+    throw new Error(`LinkedIn - JsClient Error: ${JSON.stringify(e)}`);
+  }
+};
+
+const publishLinkedInAxios = async (linkedInContent) => {
+  try {
     const response = await axios.post(
       "https://api.linkedin.com/v2/ugcPosts",
-      {
-        author: "urn:li:person:5QawhgJm1Y",
-        lifecycleState: "PUBLISHED",
-        specificContent: {
-          "com.linkedin.ugc.ShareContent": {
-            shareCommentary: {
-              text: linkedInContent.content,
-            },
-            shareMediaCategory: "NONE",
-          },
-        },
-        visibility: {
-          "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-        },
-      },
+      constructLinkedInPostData(linkedInContent),
       {
         headers: {
+          Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
           "Content-Type": "application/json",
           "X-Restli-Protocol-Version": "2.0.0",
-          Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
         },
       }
     );
@@ -104,63 +180,47 @@ export const publishLinkedIn = async (linkedInContent) => {
       return (
         "https://linkedin.com/feed/update/" + response.headers["x-restli-id"]
       );
-    } else if (response.status == 429) {
-      console.error("LinkedIn - API Rate Limit Error:", response.body);
-      process.exit(1);
     } else {
-      console.error("LinkedIn - API Response Error:", response.body);
-      process.exit(1);
+      handleLinkedInError(
+        response.status,
+        response.data || response.body,
+        "LinkedIn - Axios"
+      );
     }
   } catch (e) {
-    console.error("LinkedIn - API Request Error:", e);
-    process.exit(1);
+    throw new Error(`LinkedIn - Axios Request Error: ${JSON.stringify(e)}`);
   }
 };
 
-// export const publishLinkedIn = async (linkedInContent) => {
-//   const method = "POST";
-//   const hostname = "api.linkedin.com";
-//   const path = "/v2/ugcPosts";
-//   const headers = {
-//     Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
-//     "Content-Type": "application/json",
-//     "X-Restli-Protocol-Version": "2.0.0",
-//   };
-//   const body = JSON.stringify({
-//     author: "urn:li:person:5QawhgJm1Y",
-//     lifecycleState: "PUBLISHED",
-//     specificContent: {
-//       "com.linkedin.ugc.ShareContent": {
-//         shareCommentary: {
-//           text: linkedInContent.content,
-//         },
-//         shareMediaCategory: "NONE",
-//       },
-//     },
-//     visibility: {
-//       "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-//     },
-//   });
-//   try {
-//     const response = await _request(method, hostname, path, headers, body);
-//     if (response.status == 201) {
-//       return (
-//         "https://linkedin.com/feed/update/" + response.headers["x-restli-id"]
-//       );
-//     } else if (response.status == 429) {
-//       console.error("LinkedIn - API Rate Limit Error:", response.body);
-//       process.exit(1);
-//     } else {
-//       console.error("LinkedIn - API Response Error:", response.body);
-//       process.exit(1);
-//     }
-//   } catch (e) {
-//     console.error("LinkedIn - API Request Error:", e);
-//     process.exit(1);
-//   }
-// };
+const publishLinkedInRequest = async (linkedInContent) => {
+  const method = "POST";
+  const hostname = "api.linkedin.com";
+  const path = "/v2/ugcPosts";
+  const headers = {
+    Authorization: `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
+    "Content-Type": "application/json",
+    "X-Restli-Protocol-Version": "2.0.0",
+  };
+  const body = JSON.stringify(constructLinkedInPostData(linkedInContent));
+  try {
+    const response = await _request(method, hostname, path, headers, body);
+    if (response.status == 201) {
+      return (
+        "https://linkedin.com/feed/update/" + response.headers["x-restli-id"]
+      );
+    } else {
+      handleLinkedInError(
+        response.status,
+        response.data || response.body,
+        "LinkedIn - ReqCreate"
+      );
+    }
+  } catch (e) {
+    throw new Error(`LinkedIn - ReqCreate Request Error: ${JSON.stringify(e)}`);
+  }
+};
 
-// https request wrapper
+// HTTPS request wrapper
 const _request = (method, hostname, path, headers, body, retries = 4) => {
   return new Promise((resolve, reject) => {
     const reqOpts = {
@@ -173,7 +233,6 @@ const _request = (method, hostname, path, headers, body, retries = 4) => {
     };
     if (method !== "GET") {
       reqOpts.headers["Content-Length"] = Buffer.byteLength(body);
-      delete reqOpts.headers["Transfer-Encoding"];
     }
     let resBody = "";
     const attempt = (retries) => {
@@ -191,9 +250,6 @@ const _request = (method, hostname, path, headers, body, retries = 4) => {
       });
       req.on("error", (e) => {
         if (retries > 0) {
-          console.error(
-            `Error: ${e.code}, retrying... (${retries} retries left)`
-          );
           setTimeout(() => attempt(retries - 1), reqOpts.timeout / retries);
         } else {
           reject(e);
@@ -206,6 +262,34 @@ const _request = (method, hostname, path, headers, body, retries = 4) => {
     };
     attempt(retries);
   });
+};
+
+const getLinkedInURN = async (accessToken) => {
+  const method = "GET";
+  const hostname = "api.linkedin.com";
+  const path = "/v2/userinfo";
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+    "X-Restli-Protocol-Version": "2.0.0",
+  };
+  const body = "";
+  try {
+    const response = await _request(method, hostname, path, headers, body);
+    if (response.status == 200) {
+      const respBody = JSON.parse(response.body);
+      console.log("LinkedIn - URN:", respBody.sub);
+    } else if (response.status == 429) {
+      console.error("LinkedIn - URN Rate Limit Error:", response.body);
+      process.exit(1);
+    } else {
+      console.error("LinkedIn - URN Response Error:", response.body);
+      process.exit(1);
+    }
+  } catch (e) {
+    console.error("LinkedIn - URN Request Error:", e);
+    process.exit(1);
+  }
 };
 
 // await getLinkedInURN(process.env.LINKEDIN_ACCESS_TOKEN);

@@ -51,8 +51,8 @@ export const fetchContent = async (notionData) => {
         pageDetails.properties["SEO Image"].url;
       break;
     case "LinkedIn":
-      notionData.linkedInContent.content = await getPageContentMarkdown(
-        notionData.pageId
+      notionData.linkedInContent.content = removeMarkdownLinks(
+        await getPageContentMarkdown(notionData.pageId)
       );
       break;
     case "Twitter":
