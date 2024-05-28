@@ -1,7 +1,7 @@
 import { publishDevTo } from "../utils/publish/devTo.js";
 import { publishHashnode } from "../utils/publish/hashnode.js";
 import { publishTwitter } from "../utils/publish/twitter.js";
-import { publishLinkedIn } from "../utils/publish/linkedIn.js";
+// import { publishLinkedIn } from "../utils/publish/linkedIn.js";
 
 import { updateNotionPageUrl } from "../utils/success/notion.js";
 
@@ -32,15 +32,15 @@ export const publishContent = async (notionData) => {
       );
       break;
     case "LinkedIn":
-      const { linkedInContent } = notionData;
-      notionData.linkedInContent.publishedUrl = await publishLinkedIn(
-        linkedInContent
-      );
-      await updateNotionPageUrl(
-        notionData.pageId,
-        notionData.linkedInContent.publishedUrl,
-        ""
-      );
+      // const { linkedInContent } = notionData;
+      // notionData.linkedInContent.publishedUrl = await publishLinkedIn(
+      //   linkedInContent
+      // );
+      // await updateNotionPageUrl(
+      //   notionData.pageId,
+      //   notionData.linkedInContent.publishedUrl,
+      //   ""
+      // );
       break;
   }
 };

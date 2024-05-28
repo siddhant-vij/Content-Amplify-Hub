@@ -36,6 +36,9 @@ Error: connect ETIMEDOUT 108.174.10.22:443
 - I'm sure that it's not a rate limiting error from the developer portal & also, checking in the code.
 
 - I'm not sure how to fix this.
+
+- If it's a code issue,I'll be more than happy to change this, but for now I'm pushing this to origin & commenting out all LinkedIn-related posting actions in this project.
+- Instead, I'll be sending an email reminder to the user to manually schedule posts on LinkedIn on a weekly basis.
 */
 
 import https from "https";
