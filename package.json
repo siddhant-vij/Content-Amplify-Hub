@@ -1,7 +1,7 @@
 {
   "name": "content-amplify-hub",
   "version": "1.0.0",
-  "description": "Automated content publishing from Notion DB to Dev.to, Hashnode, Twitter, and LinkedIn using serverless functions and scheduled tasks.",
+  "description": "Automated content publishing from Notion DB to Dev.to, Hashnode, Twitter, and LinkedIn using GitHub Actions.",
   "main": "main.js",
   "scripts": {
     "start": "node main.js"

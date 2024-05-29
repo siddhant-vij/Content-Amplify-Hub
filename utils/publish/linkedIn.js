@@ -4,9 +4,10 @@ import { RestliClient } from "linkedin-api-client";
 import "dotenv/config";
 
 const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
+const urn = process.env.LINKEDIN_URN;
 
 const linkedInPostData = (linkedInContent) => ({
-  author: "urn:li:person:5QawhgJm1Y",
+  author: `urn:li:person:${urn}`,
   lifecycleState: "PUBLISHED",
   specificContent: {
     "com.linkedin.ugc.ShareContent": {
