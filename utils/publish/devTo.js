@@ -1,4 +1,5 @@
 import axios from "axios";
+import { sendEmail } from "../failure/email.js";
 
 export const publishDevTo = async (devtoContent) => {
   const { title, main_image, tags, body_markdown, published } = devtoContent;
@@ -20,9 +21,9 @@ export const publishDevTo = async (devtoContent) => {
         },
       }
     )
-    .catch((error) => {
-      console.error("Dev.to - API Error:", error.message);
-      process.exit(1);
+    .catch(async (error) => {
+      await sendEmail("Dev.to - API Error", error.message);
+      return "";
     });
   return data.url;
 };

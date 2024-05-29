@@ -1,15 +1,18 @@
 import { Client } from "@notionhq/client";
+import { sendEmail } from "../failure/email.js";
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
 const buildNotionProperties = (contentUrl, hnUrl) => {
-  const properties = {
-    "Content Link": {
+  const properties = {};
+
+  if (contentUrl !== "") {
+    properties["Content Link"] = {
       url: contentUrl,
-    },
-  };
+    };
+  }
 
   if (hnUrl !== "") {
     properties["Hashnode Link"] = {
@@ -29,7 +32,7 @@ export const updateNotionPageUrl = async (pageId, contentUrl, hnUrl) => {
       properties,
     });
   } catch (error) {
-    console.error("Notion Update - API Error:", error.message);
+    await sendEmail("Notion Update - API Error:", error.message);
     process.exit(1);
   }
 };

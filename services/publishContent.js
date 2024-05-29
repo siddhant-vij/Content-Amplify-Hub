@@ -9,13 +9,22 @@ export const publishContent = async (notionData) => {
   switch (notionData.channel) {
     case "Blog Post":
       const { devToContent, hashnodeContent } = notionData;
-      notionData.devToContent.publishedUrl = await publishDevTo(devToContent);
+      try {
+        notionData.devToContent.publishedUrl = await publishDevTo(devToContent);
+      } catch (error) {
+        notionData.devToContent.publishedUrl = "";
+      }
+      await updateNotionPageUrl(
+        notionData.pageId,
+        notionData.devToContent.publishedUrl,
+        ""
+      );
       notionData.hashnodeContent.publishedUrl = await publishHashnode(
         hashnodeContent
       );
       await updateNotionPageUrl(
         notionData.pageId,
-        notionData.devToContent.publishedUrl,
+        "",
         notionData.hashnodeContent.publishedUrl
       );
       break;
@@ -32,9 +41,10 @@ export const publishContent = async (notionData) => {
       );
       break;
     case "LinkedIn":
-      const { linkedInContent } = notionData;
+      const { pageId, linkedInContent } = notionData;
       notionData.linkedInContent.publishedUrl = await publishLinkedIn(
-        linkedInContent
+        linkedInContent,
+        pageId
       );
       await updateNotionPageUrl(
         notionData.pageId,

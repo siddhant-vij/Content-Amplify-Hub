@@ -1,4 +1,5 @@
 import { TwitterApi } from "twitter-api-v2";
+import { sendEmail } from "../failure/email.js";
 
 const twitterProfileName = process.env.TWITTER_PROFILE_NAME;
 
@@ -22,7 +23,7 @@ const uploadImage = async (imageUrl) => {
     });
     return mediaId;
   } catch (error) {
-    console.error("Twitter - API Error:", error.message);
+    await sendEmail("Twitter Upload Image - API Error", error.message);
     process.exit(1);
   }
 };
@@ -53,7 +54,7 @@ export const publishTwitter = async (twitterContent) => {
     );
     return `https://x.com/${twitterProfileName}/status/${response.data.id}`;
   } catch (error) {
-    console.error("Twitter - API Error:", error.message);
+    await sendEmail("Twitter Publish - API Error", error.message);
     process.exit(1);
   }
 };

@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { sendEmail } from "../failure/email.js";
 
 const HASHNODE_GQL_URL = "https://gql.hashnode.com";
 const HASHNODE_TOKEN = process.env.HASHNODE_TOKEN;
@@ -53,7 +54,7 @@ const fetchGraphQL = async (query, variables) => {
 
   const result = await response.json();
   if (result.errors) {
-    console.error("Hashnode - GQL Error:", result.errors[0].message);
+    await sendEmail("Hashnode - GQL Error", result.errors[0].message);
     process.exit(1);
   }
   return result.data;

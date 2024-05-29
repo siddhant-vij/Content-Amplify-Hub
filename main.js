@@ -1,5 +1,6 @@
 import { fetchContent } from "./services/fetchContent.js";
 import { publishContent } from "./services/publishContent.js";
+import { sendEmail } from "./utils/failure/email.js";
 
 const notionData = {
   pageId: "",
@@ -51,14 +52,13 @@ const main = async () => {
   try {
     await fetchContent(notionData);
   } catch (error) {
-    console.error("Notion Fetch - Error:", error.message);
+    await sendEmail("Notion Fetch - Error", error.message);
     process.exit(1);
   }
   try {
     await publishContent(notionData);
   } catch (error) {
-    console.error("Publish - Error:", error.message);
-    process.exit(1);
+    await sendEmail("Publish Content - Error", error.message);
   }
 };
 

@@ -68,7 +68,7 @@ const app = http.createServer(function (req, res) {
         if (r.status == 200) {
           const access_token = JSON.parse(r.body).access_token;
 
-          // TODO: Once app is deployed, directly update the GitHub Environment Variable using the GitHub API?
+          // TODO: Once app is deployed, directly update the GitHub Environment Secrets using the GitHub API?
 
           // Local: Update the .env file with the new access token
           dotenv.config();

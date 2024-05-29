@@ -1,5 +1,6 @@
 import { Client } from "@notionhq/client";
 import { NotionToMarkdown } from "notion-to-md";
+import { sendEmail } from "../failure/email.js";
 import "dotenv/config";
 
 const notion = new Client({
@@ -28,12 +29,12 @@ export const getPageProperties = async () => {
       ],
     });
     if (response.results.length === 0) {
-      console.error("No results found");
+      await sendEmail("Nothing to post", "No results found");
       process.exit(1);
     }
     return response.results[0];
   } catch (error) {
-    console.error("Notion Fetch - API Error:", error.message);
+    await sendEmail("Notion Fetch - API Error", error.message);
     process.exit(1);
   }
 };

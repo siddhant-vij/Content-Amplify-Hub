@@ -1,6 +1,7 @@
 import https from "https";
 import axios from "axios";
 import { RestliClient } from "linkedin-api-client";
+import { sendEmail } from "../failure/email.js";
 import "dotenv/config";
 
 const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
@@ -77,7 +78,7 @@ const retryOperation = async (operation, attempts, delay) => {
   }
 };
 
-export const publishLinkedIn = async (linkedInContent) => {
+export const publishLinkedIn = async (linkedInContent, pageId) => {
   try {
     return await retryOperation(
       () => publishLinkedInJsClient(linkedInContent),
@@ -101,7 +102,13 @@ export const publishLinkedIn = async (linkedInContent) => {
   try {
     return await publishLinkedInRequest(linkedInContent);
   } catch (error) {
-    console.error("publishLinkedInRequest failed");
+    console.error("publishLinkedInRequest failed, sending Email");
+    await sendEmail(
+      "Publish on LinkedIn - Failed",
+      `Post the following content manually: https://www.notion.so/${
+        process.env.NOTION_DOMAIN
+      }/${pageId.replace(/-/g, "")}`
+    );
     process.exit(1);
   }
 };
