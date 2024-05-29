@@ -3,17 +3,8 @@ import {
   getPageContentMarkdown,
 } from "../utils/fetch/notion.js";
 
-const convertDevToHnRemoveToc = (devBodyMd) => {
-  const startIndex = devBodyMd.indexOf("## Introduction");
-  const hnBodyMdWithoutToc = devBodyMd.slice(startIndex);
-  return hnBodyMdWithoutToc;
-};
-
-const removeMarkdownLinks = (inputMdStr) => {
-  const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
-  const result = inputMdStr.replace(markdownLinkPattern, "$2");
-  return result;
-};
+const removeMarkdownLinks = (inputMdStr) =>
+  inputMdStr.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$2");
 
 export const fetchContent = async (notionData) => {
   const pageDetails = await getPageProperties();
@@ -22,7 +13,7 @@ export const fetchContent = async (notionData) => {
   switch (notionData.channel) {
     case "Blog Post":
       const devBodyMd = await getPageContentMarkdown(notionData.pageId);
-      const hnBodyMd = convertDevToHnRemoveToc(devBodyMd);
+      const hnBodyMd = devBodyMd.slice(devBodyMd.indexOf("## Introduction"));
 
       notionData.devToContent.title =
         pageDetails.properties["Content Item Title"].title[0].plain_text;
@@ -54,6 +45,16 @@ export const fetchContent = async (notionData) => {
       notionData.linkedInContent.content = removeMarkdownLinks(
         await getPageContentMarkdown(notionData.pageId)
       );
+      if (pageDetails.properties["LI Article URL"].url !== null) {
+        notionData.linkedInContent.articleUrl =
+          pageDetails.properties["LI Article URL"].url;
+        notionData.linkedInContent.articleTitle =
+          pageDetails.properties["LI Article Title"].rich_text[0].plain_text;
+        notionData.linkedInContent.articleDesc =
+          pageDetails.properties["LI Article Desc"].rich_text[0].plain_text;
+      } else {
+        notionData.linkedInContent.articleUrl = "";
+      }
       break;
     case "Twitter":
       notionData.twitterContent.content = removeMarkdownLinks(

@@ -34,6 +34,9 @@ const notionData = {
   },
   linkedInContent: {
     content: "",
+    articleUrl: "",
+    articleTitle: "",
+    articleDesc: "",
     publishedUrl: "",
   },
   twitterContent: {

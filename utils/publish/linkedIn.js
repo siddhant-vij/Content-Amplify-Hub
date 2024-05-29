@@ -6,21 +6,42 @@ import "dotenv/config";
 const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
 const urn = process.env.LINKEDIN_URN;
 
-const linkedInPostData = (linkedInContent) => ({
-  author: `urn:li:person:${urn}`,
-  lifecycleState: "PUBLISHED",
-  specificContent: {
-    "com.linkedin.ugc.ShareContent": {
-      shareCommentary: {
-        text: linkedInContent.content,
+const linkedInPostData = async (linkedInContent) => {
+  const postDataObj = {
+    author: `urn:li:person:${urn}`,
+    lifecycleState: "PUBLISHED",
+    specificContent: {
+      "com.linkedin.ugc.ShareContent": {
+        shareCommentary: {
+          text: linkedInContent.content,
+        },
       },
-      shareMediaCategory: "NONE",
     },
-  },
-  visibility: {
-    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-  },
-});
+    visibility: {
+      "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+    },
+  };
+
+  if (linkedInContent.articleUrl !== "") {
+    postDataObj.specificContent[
+      "com.linkedin.ugc.ShareContent"
+    ].shareMediaCategory = "ARTICLE";
+    postDataObj.specificContent["com.linkedin.ugc.ShareContent"].media = [
+      {
+        status: "READY",
+        description: { text: linkedInContent.articleDesc },
+        originalUrl: linkedInContent.articleUrl,
+        title: { text: linkedInContent.articleTitle },
+      },
+    ];
+  } else {
+    postDataObj.specificContent[
+      "com.linkedin.ugc.ShareContent"
+    ].shareMediaCategory = "NONE";
+  }
+
+  return postDataObj;
+};
 
 const handleLinkedInError = (status, responseBody, clientType) => {
   let errorMessage;
@@ -46,6 +67,7 @@ const retryOperation = async (operation, attempts, delay) => {
     try {
       return await operation();
     } catch (error) {
+      // console.error(error.message);
       if (i < attempts - 1) {
         await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)));
       } else {
@@ -59,8 +81,8 @@ export const publishLinkedIn = async (linkedInContent) => {
   try {
     return await retryOperation(
       () => publishLinkedInJsClient(linkedInContent),
-      4,
-      2000
+      5,
+      4000
     );
   } catch (error) {
     console.error("publishLinkedInJsClient failed, trying Axios");
@@ -69,8 +91,8 @@ export const publishLinkedIn = async (linkedInContent) => {
   try {
     return await retryOperation(
       () => publishLinkedInAxios(linkedInContent),
-      4,
-      2000
+      5,
+      4000
     );
   } catch (error) {
     console.error("publishLinkedInAxios failed, trying Request");
@@ -89,7 +111,7 @@ const publishLinkedInJsClient = async (linkedInContent) => {
   try {
     const response = await client.create({
       resourcePath: "/ugcPosts",
-      entity: linkedInPostData(linkedInContent),
+      entity: await linkedInPostData(linkedInContent),
       accessToken,
     });
     if (response.status == 201) {
@@ -112,7 +134,7 @@ const publishLinkedInAxios = async (linkedInContent) => {
   try {
     const response = await axios.post(
       "https://api.linkedin.com/v2/ugcPosts",
-      linkedInPostData(linkedInContent),
+      await linkedInPostData(linkedInContent),
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -146,7 +168,7 @@ const publishLinkedInRequest = async (linkedInContent) => {
     "Content-Type": "application/json",
     "X-Restli-Protocol-Version": "2.0.0",
   };
-  const body = JSON.stringify(linkedInPostData(linkedInContent));
+  const body = JSON.stringify(await linkedInPostData(linkedInContent));
   try {
     const response = await _request(method, hostname, path, headers, body);
     if (response.status == 201) {
@@ -166,7 +188,7 @@ const publishLinkedInRequest = async (linkedInContent) => {
 };
 
 // HTTPS request wrapper
-const _request = (method, hostname, path, headers, body, retries = 4) => {
+const _request = (method, hostname, path, headers, body, retries = 5) => {
   return new Promise((resolve, reject) => {
     const reqOpts = {
       method,
