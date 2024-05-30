@@ -114,7 +114,10 @@ export const publishLinkedIn = async (linkedInContent, pageId) => {
 };
 
 const publishLinkedInJsClient = async (linkedInContent) => {
-  const client = new RestliClient();
+  const client = new RestliClient({
+    timeout: 20000,
+    keepAlive: true,
+  });
   try {
     const response = await client.create({
       resourcePath: "/ugcPosts",
@@ -139,7 +142,13 @@ const publishLinkedInJsClient = async (linkedInContent) => {
 
 const publishLinkedInAxios = async (linkedInContent) => {
   try {
-    const response = await axios.post(
+    const axiosInstance = axios.create({
+      httpsAgent: new https.Agent({
+        keepAlive: true,
+        timeout: 20000,
+      }),
+    });
+    const response = await axiosInstance.post(
       "https://api.linkedin.com/v2/ugcPosts",
       await linkedInPostData(linkedInContent),
       {
@@ -202,8 +211,8 @@ const _request = (method, hostname, path, headers, body, retries = 5) => {
       hostname,
       path,
       headers,
-      rejectUnauthorized: false,
       timeout: 20000,
+      keepAlive: true,
     };
     if (method !== "GET") {
       reqOpts.headers["Content-Length"] = Buffer.byteLength(body);
