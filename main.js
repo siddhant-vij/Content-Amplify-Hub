@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { fetchContent } from "./services/fetchContent.js";
 import { publishContent } from "./services/publishContent.js";
 import { sendEmail } from "./utils/failure/email.js";
@@ -62,4 +63,4 @@ const main = async () => {
   }
 };
 
-main();
+await main();

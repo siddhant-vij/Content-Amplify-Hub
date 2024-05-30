@@ -1,5 +1,5 @@
-import https from "https";
 import "dotenv/config";
+import https from "https";
 
 const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
 

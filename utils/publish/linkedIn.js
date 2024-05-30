@@ -2,7 +2,6 @@ import https from "https";
 import axios from "axios";
 import { RestliClient } from "linkedin-api-client";
 import { sendEmail } from "../failure/email.js";
-import "dotenv/config";
 
 const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
 const urn = process.env.LINKEDIN_URN;
