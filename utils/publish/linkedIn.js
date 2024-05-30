@@ -29,8 +29,12 @@ const linkedInPostData = async (linkedInContent) => {
     postDataObj.specificContent["com.linkedin.ugc.ShareContent"].media = [
       {
         status: "READY",
-        description: { text: linkedInContent.articleDesc },
         originalUrl: linkedInContent.articleUrl,
+        thumbnails: [
+          {
+            url: linkedInContent.articleImage,
+          },
+        ],
         title: { text: linkedInContent.articleTitle },
       },
     ];

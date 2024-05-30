@@ -50,8 +50,8 @@ export const fetchContent = async (notionData) => {
           pageDetails.properties["LI Article URL"].url;
         notionData.linkedInContent.articleTitle =
           pageDetails.properties["LI Article Title"].rich_text[0].plain_text;
-        notionData.linkedInContent.articleDesc =
-          pageDetails.properties["LI Article Desc"].rich_text[0].plain_text;
+        notionData.linkedInContent.articleImage =
+          pageDetails.properties["LI Article Image"].url;
       } else {
         notionData.linkedInContent.articleUrl = "";
       }

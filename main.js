@@ -37,8 +37,8 @@ const notionData = {
   linkedInContent: {
     content: "",
     articleUrl: "",
+    articleImage: "",
     articleTitle: "",
-    articleDesc: "",
     publishedUrl: "",
   },
   twitterContent: {
