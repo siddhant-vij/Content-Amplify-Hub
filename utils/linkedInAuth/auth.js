@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 const LINKEDIN_USERNAME = process.env.LINKEDIN_USERNAME;
 const LINKEDIN_PASSWORD = process.env.LINKEDIN_PASSWORD;
 const client_id = process.env.LINKEDIN_CLIENT_ID;
-const client_secret = process.env.LINKEDIN_CLIENT_SERCRET;
+const client_secret = process.env.LINKEDIN_CLIENT_SECRET;
 const auth_base_url = "https://www.linkedin.com/oauth/v2/authorization";
 const redirect_uri = "http://localhost:3000/auth";
 const response_type = "code";

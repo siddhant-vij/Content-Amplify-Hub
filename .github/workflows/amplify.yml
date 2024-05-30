@@ -1,0 +1,51 @@
+name: Amplify Content
+
+on:
+  schedule:
+    - cron: "17 7 * * 6"
+    - cron: "19 8 * * *"
+    - cron: "23 6 * * *"
+    - cron: "37 10 * * *"
+    - cron: "43 15 * * *"
+
+jobs:
+  fetch_publish_content:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Fetch and publish content
+        env:
+          NOTION_DOMAIN: ${{ secrets.NOTION_DOMAIN }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DB_ID: ${{ secrets.NOTION_DB_ID }}
+          DEVTO_TOKEN: ${{ secrets.DEVTO_TOKEN }}
+          HASHNODE_TOKEN: ${{ secrets.HASHNODE_TOKEN }}
+          HASHNODE_PUBLICATION_ID: ${{ secrets.HASHNODE_PUBLICATION_ID }}
+          TWITTER_PROFILE_NAME: ${{ secrets.TWITTER_PROFILE_NAME }}
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_KEY_SECRET: ${{ secrets.TWITTER_API_KEY_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN}}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
+          LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_URN: ${{ secrets.LINKEDIN_URN }}
+          USER_TO_EMAIL: ${{ secrets.USER_TO_EMAIL }}
+          USER_FROM_EMAIL: ${{ secrets.USER_FROM_EMAIL }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        run: npm start
