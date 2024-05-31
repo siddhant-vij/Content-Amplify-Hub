@@ -1,0 +1,33 @@
+name: ReAuth LinkedIn
+
+on:
+  schedule:
+    - cron: "0 0 5 * *"
+
+jobs:
+  fetch_publish_content:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Fetch and publish content
+        env:
+          LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
+          LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          GH_USER: ${{ secrets.GH_USER }}
+          GH_REPO: ${{ secrets.GH_REPO }}
+          SECRET_NAME: ${{ secrets.SECRET_NAME }}
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        run: node utils/linkedInAuth/auth.js
