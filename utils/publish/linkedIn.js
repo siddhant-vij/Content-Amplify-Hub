@@ -71,7 +71,7 @@ const retryOperation = async (operation, attempts, delay) => {
     try {
       return await operation();
     } catch (error) {
-      // console.error(error.message);
+      console.error(error.message);
       if (i < attempts - 1) {
         await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)));
       } else {

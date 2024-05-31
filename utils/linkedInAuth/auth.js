@@ -74,14 +74,14 @@ const app = http.createServer(function (req, res) {
           console.log("Access token retrieved.");
           res.end();
         } else {
-          console.error("ERROR - " + r.status + JSON.stringify(r.body));
+          console.error("Auth. Response Error - " + r.status + JSON.stringify(r.body));
           res.writeHead(r.status, { "content-type": "text/html" });
           res.write(r.status + " Internal Server Error");
           res.end();
         }
       })
       .catch((e) => {
-        console.error("ERROR - " + e);
+        console.error("Auth. Request Error - " + e);
         res.writeHead(500, { "content-type": "text/html" });
         res.write("500 Internal Server Error");
         res.end();

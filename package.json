@@ -25,16 +25,14 @@
     "url": "git+https://github.com/siddhant-vij/Content-Amplify-Hub.git"
   },
   "keywords": [
-    "automation",
-    "content-creation",
-    "notion-api",
-    "serverless",
-    "vercel",
-    "github-actions",
-    "social-media",
-    "blog-posting",
     "nodejs",
-    "api-integration"
+    "automation",
+    "social-media",
+    "api-integration",
+    "blog-posting",
+    "github-actions",
+    "content-creation",
+    "notion-api"
   ],
   "author": "siddhant-vij",
   "license": "MIT",
