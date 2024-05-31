@@ -31,6 +31,14 @@ export const updateNotionPageUrl = async (pageId, contentUrl, hnUrl) => {
       page_id: pageId,
       properties,
     });
+    let urlMsg = "";
+    if (contentUrl !== "") {
+      urlMsg += `Content Url: ${contentUrl}\n`;
+    }
+    if (hnUrl !== "") {
+      urlMsg += `Hashnode Url: ${hnUrl}`;
+    }
+    await sendEmail("Notion Update - Success", urlMsg);
   } catch (error) {
     await sendEmail("Notion Update - API Error:", error.message);
     process.exit(1);

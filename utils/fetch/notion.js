@@ -18,6 +18,7 @@ export const getPageProperties = async () => {
         date: {
           is_not_empty: true,
           after: now,
+          before: new Date(now.getTime() + 1 * 60 * 60 * 1000),
         },
       },
       sorts: [
