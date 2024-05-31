@@ -2,9 +2,8 @@ import "dotenv/config";
 import http from "http";
 import https from "https";
 import url from "url";
-import fs from "fs";
 import puppeteer from "puppeteer";
-import dotenv from "dotenv";
+import { updateGitHubSecret } from "./github.js";
 
 const LINKEDIN_USERNAME = process.env.LINKEDIN_USERNAME;
 const LINKEDIN_PASSWORD = process.env.LINKEDIN_PASSWORD;
@@ -68,16 +67,7 @@ const app = http.createServer(function (req, res) {
         if (r.status == 200) {
           const access_token = JSON.parse(r.body).access_token;
 
-          // TODO: Once app is deployed, directly update the GitHub Environment Secrets using the GitHub API?
-
-          // Local: Update the .env file with the new access token
-          dotenv.config();
-          const envConfig = dotenv.parse(fs.readFileSync(".env"));
-          envConfig.LINKEDIN_ACCESS_TOKEN = access_token;
-          const newEnvConfig = Object.keys(envConfig)
-            .map((key) => `${key}=${envConfig[key]}`)
-            .join("\n");
-          fs.writeFileSync(".env", newEnvConfig);
+          updateGitHubSecret(access_token);
 
           res.writeHead(200, { "content-type": "text/html" });
           res.write("Access token retrieved. You can close this page");

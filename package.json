@@ -9,9 +9,11 @@
   "type": "module",
   "dependencies": {
     "@notionhq/client": "^2.2.15",
+    "@octokit/core": "^6.1.2",
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
     "graphql": "^16.8.1",
+    "libsodium-wrappers": "^0.7.13",
     "linkedin-api-client": "^0.3.0",
     "nodemailer": "^6.9.13",
     "notion-to-md": "^3.1.1",
