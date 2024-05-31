@@ -6,7 +6,7 @@ on:
     - cron: "19 8 * * *"
     - cron: "23 6 * * *"
     - cron: "37 10 * * *"
-    - cron: "43 15 * * *"
+    - cron: "43 14 * * *"
 
 jobs:
   fetch_publish_content:

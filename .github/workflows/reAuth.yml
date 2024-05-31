@@ -2,7 +2,7 @@ name: ReAuth LinkedIn
 
 on:
   schedule:
-    - cron: "0 0 5 * *"
+    - cron: "13 1 5 * *"
 
 jobs:
   fetch_publish_content:
