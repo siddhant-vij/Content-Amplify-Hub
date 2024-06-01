@@ -34,6 +34,15 @@ const notionData = {
     },
     publishedUrl: "",
   },
+  mediumContent: {
+    title: "",
+    contentFormat: "markdown",
+    content: "",
+    tags: [],
+    publishStatus: "public",
+    notifyFollowers: true,
+    publishedUrl: "",
+  },
   linkedInContent: {
     content: "",
     articleUrl: "",

@@ -12,8 +12,13 @@ export const fetchContent = async (notionData) => {
   notionData.pageId = pageDetails.id;
   switch (notionData.channel) {
     case "Blog Post":
-      const devBodyMd = await getPageContentMarkdown(notionData.pageId);
-      const hnBodyMd = devBodyMd.slice(devBodyMd.indexOf("## Introduction"));
+      const contentBodyMd = await getPageContentMarkdown(notionData.pageId);
+      const hnBodyMd = contentBodyMd.slice(
+        contentBodyMd.indexOf("## Introduction")
+      );
+      const mediumMd = contentBodyMd.slice(
+        contentBodyMd.indexOf("## Introduction") + "## Introduction".length
+      );
 
       notionData.devToContent.title =
         pageDetails.properties["Content Item Title"].title[0].plain_text;
@@ -22,7 +27,7 @@ export const fetchContent = async (notionData) => {
       notionData.devToContent.tags = pageDetails.properties[
         "Content Tags"
       ].multi_select.map((tag) => tag.name);
-      notionData.devToContent.body_markdown = devBodyMd;
+      notionData.devToContent.body_markdown = contentBodyMd;
 
       notionData.hashnodeContent.title =
         pageDetails.properties["Content Item Title"].title[0].plain_text;
@@ -40,6 +45,13 @@ export const fetchContent = async (notionData) => {
         pageDetails.properties["SEO Description"].rich_text[0].plain_text;
       notionData.hashnodeContent.metaTags.image =
         pageDetails.properties["SEO Image"].url;
+
+      notionData.mediumContent.title =
+        pageDetails.properties["Content Item Title"].title[0].plain_text;
+      notionData.mediumContent.tags = pageDetails.properties[
+        "Content Tags"
+      ].multi_select.map((tag) => tag.name);
+      notionData.mediumContent.content = `# ${notionData.mediumContent.title}\n\n${mediumMd}`;
       break;
     case "LinkedIn":
       notionData.linkedInContent.content = removeMarkdownLinks(

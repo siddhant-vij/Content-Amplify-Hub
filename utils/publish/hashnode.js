@@ -55,7 +55,7 @@ const fetchGraphQL = async (query, variables) => {
   const result = await response.json();
   if (result.errors) {
     await sendEmail("Hashnode - GQL Error", result.errors[0].message);
-    process.exit(1);
+    return "";
   }
   return result.data;
 };
@@ -84,5 +84,5 @@ export const publishHashnode = async (hashnodeContent) => {
   };
 
   const response = await fetchGraphQL(publishPostMutation, variables);
-  return response.publishPost.post.url;
+  return response === "" ? "" : response.publishPost.post.url;
 };

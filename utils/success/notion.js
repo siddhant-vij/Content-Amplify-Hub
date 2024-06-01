@@ -5,7 +5,7 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const buildNotionProperties = (contentUrl, hnUrl) => {
+const buildNotionProperties = (contentUrl, hnUrl, mediumUrl) => {
   const properties = {};
 
   if (contentUrl !== "") {
@@ -20,25 +20,32 @@ const buildNotionProperties = (contentUrl, hnUrl) => {
     };
   }
 
+  if (mediumUrl !== "") {
+    properties["Medium Link"] = {
+      url: mediumUrl,
+    };
+  }
+
   return properties;
 };
 
-export const updateNotionPageUrl = async (pageId, contentUrl, hnUrl) => {
-  const properties = buildNotionProperties(contentUrl, hnUrl);
+export const updateNotionPageUrl = async (
+  pageId,
+  contentUrl,
+  hnUrl,
+  mediumUrl
+) => {
+  if (contentUrl === "" && hnUrl === "" && mediumUrl === "") {
+    return;
+  }
+
+  const properties = buildNotionProperties(contentUrl, hnUrl, mediumUrl);
 
   try {
     await notion.pages.update({
       page_id: pageId,
       properties,
     });
-    let urlMsg = "";
-    if (contentUrl !== "") {
-      urlMsg += `Content Url: ${contentUrl}\n`;
-    }
-    if (hnUrl !== "") {
-      urlMsg += `Hashnode Url: ${hnUrl}`;
-    }
-    await sendEmail("Notion Update - Success", urlMsg);
   } catch (error) {
     await sendEmail("Notion Update - API Error:", error.message);
     process.exit(1);
