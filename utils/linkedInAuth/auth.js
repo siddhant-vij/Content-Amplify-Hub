@@ -3,6 +3,8 @@ import http from "http";
 import https from "https";
 import url from "url";
 import puppeteer from "puppeteer";
+import fs from "fs";
+import dotenv from "dotenv";
 import { updateGitHubSecret } from "./github.js";
 
 const linkedInUsername = process.env.LINKEDIN_USERNAME;
@@ -21,7 +23,6 @@ const serverPromise = new Promise((resolve) => {
 });
 
 const server = http.createServer(async (req, res) => {
-  console.log("Inside server");
   const reqPathname = url.parse(req.url, true).pathname;
   const reqQuery = url.parse(req.url, true).query;
 
@@ -43,7 +44,6 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(302, { Location: authUrl });
     res.end();
   } else if (reqPathname === redirectUriPathname) {
-    console.log("Redirected to: ", redirectUriPathname);
     const reqCode = reqQuery.code;
 
     const pathQuery =
@@ -73,6 +73,14 @@ const server = http.createServer(async (req, res) => {
           const accessToken = JSON.parse(r.body).access_token;
 
           await updateGitHubSecret(accessToken);
+
+          dotenv.config();
+          const envConfig = dotenv.parse(fs.readFileSync(".env"));
+          envConfig.LINKEDIN_ACCESS_TOKEN = accessToken;
+          const newEnvConfig = Object.keys(envConfig)
+            .map((key) => `${key}=${envConfig[key]}`)
+            .join("\n");
+          fs.writeFileSync(".env", newEnvConfig);
 
           res.writeHead(200, { "content-type": "text/html" });
           res.write("Access token retrieved. You can close this page");
@@ -109,9 +117,7 @@ server.on("listening", async () => {
   await runPuppeteer();
 
   await serverPromise;
-  console.log("After serverPromise...");
   server.close();
-  console.log("Server closed");
 });
 
 const runPuppeteer = async () => {
@@ -129,12 +135,8 @@ const runPuppeteer = async () => {
     page.waitForNavigation(),
     page.click(".btn__primary--large"),
   ]);
-  console.log("After login");
-
-  console.log("Current URL: " + page.url());
 
   await browser.close();
-  console.log("Browser closed");
 };
 
 // https request wrapper
