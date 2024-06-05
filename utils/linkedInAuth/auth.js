@@ -28,7 +28,6 @@ const server = http.createServer(async (req, res) => {
   const redirectUriPathname = new URL(redirectUri).pathname;
 
   if (reqPathname === "/") {
-    console.log("Redirected to: ", reqPathname);
     const authUrl =
       authBaseUrl +
       "?response_type=" +
@@ -107,9 +106,7 @@ server.on("error", (e) => console.log("Error on port " + 3000 + " - " + e));
 server.on("listening", async () => {
   console.log("Listening on port " + 3000);
 
-  console.log("Running Puppeteer...");
   await runPuppeteer();
-  console.log("After running Puppeteer...");
 
   await serverPromise;
   console.log("After serverPromise...");
@@ -118,32 +115,26 @@ server.on("listening", async () => {
 });
 
 const runPuppeteer = async () => {
-  console.log("Launching Puppeteer...");
   const browser = await puppeteer.launch({ headless: true });
-  console.log("After launching Puppeteer...");
   const page = await browser.newPage();
-  console.log("After newPage...");
   await page.goto("http://127.0.0.1:3000");
-  console.log("After goto at port 3000...");
 
   await page.waitForSelector("#username");
-  console.log("After waitForSelector #username...");
   await page.type("#username", linkedInUsername);
-  console.log("After type #username...");
 
   await page.waitForSelector("#password");
-  console.log("After waitForSelector #password...");
   await page.type("#password", linkedInPassword);
-  console.log("After type #password...");
 
   await Promise.all([
     page.waitForNavigation(),
     page.click(".btn__primary--large"),
   ]);
-  console.log("After click .btn__primary--large...");
+  console.log("After login");
+
+  console.log("Current URL: " + page.url());
 
   await browser.close();
-  console.log("Puppeteer closed");
+  console.log("Browser closed");
 };
 
 // https request wrapper

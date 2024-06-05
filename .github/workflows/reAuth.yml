@@ -1,8 +1,7 @@
 name: ReAuth LinkedIn
 
 on:
-  schedule:
-    - cron: "46 18 5 * *"
+  workflow_dispatch:
 
 jobs:
   reauth_linkedin:
