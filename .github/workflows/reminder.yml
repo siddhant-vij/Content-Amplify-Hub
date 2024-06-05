@@ -2,7 +2,7 @@ name: ReAuth Reminder
 
 on:
   schedule:
-    - cron: "7 20 5 * *"
+    - cron: "17 20 5 * *"
 
 jobs:
   reauth_reminder:
@@ -21,4 +21,10 @@ jobs:
         run: npm install
 
       - name: ReAuth Reminder for LinkedIn
+        env:
+          USER_TO_EMAIL: ${{ secrets.USER_TO_EMAIL }}
+          USER_FROM_EMAIL: ${{ secrets.USER_FROM_EMAIL }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
         run: node utils/linkedInAuth/reminder.js

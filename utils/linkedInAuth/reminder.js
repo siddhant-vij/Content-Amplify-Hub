@@ -8,4 +8,4 @@ const reminder = async () => {
   );
 };
 
-reminder();
+await reminder();
