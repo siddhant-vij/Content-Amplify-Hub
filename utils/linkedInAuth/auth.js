@@ -5,86 +5,98 @@ import url from "url";
 import puppeteer from "puppeteer";
 import { updateGitHubSecret } from "./github.js";
 
-const LINKEDIN_USERNAME = process.env.LINKEDIN_USERNAME;
-const LINKEDIN_PASSWORD = process.env.LINKEDIN_PASSWORD;
-const client_id = process.env.LINKEDIN_CLIENT_ID;
-const client_secret = process.env.LINKEDIN_CLIENT_SECRET;
-const auth_base_url = "https://www.linkedin.com/oauth/v2/authorization";
-const redirect_uri = "http://localhost:3000/auth";
-const response_type = "code";
+const linkedInUsername = process.env.LINKEDIN_USERNAME;
+const linkedInPassword = process.env.LINKEDIN_PASSWORD;
+const clientId = process.env.LINKEDIN_CLIENT_ID;
+const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
+const authBaseUrl = "https://www.linkedin.com/oauth/v2/authorization";
+const redirectUri = "http://127.0.0.1:3000/auth";
+const responseType = "code";
 const state = Math.random();
 const scope = "openid profile email w_member_social";
 
 let server;
 
-const app = http.createServer(function (req, res) {
-  const req_pathname = url.parse(req.url, true).pathname;
-  const req_query = url.parse(req.url, true).query;
+const app = http.createServer((req, res) => {
+  const reqPathname = url.parse(req.url, true).pathname;
+  const reqQuery = url.parse(req.url, true).query;
 
-  const redirect_uri_pathname = new URL(redirect_uri).pathname;
+  const redirectUriPathname = new URL(redirectUri).pathname;
 
-  if (req_pathname == "/") {
-    const auth_url =
-      auth_base_url +
+  if (reqPathname == "/") {
+    const authUrl =
+      authBaseUrl +
       "?response_type=" +
-      response_type +
+      responseType +
       "&client_id=" +
-      client_id +
+      clientId +
       "&redirect_uri=" +
-      encodeURIComponent(redirect_uri) +
+      encodeURIComponent(redirectUri) +
       "&state=" +
       state +
       "&scope=" +
       encodeURIComponent(scope);
-    res.writeHead(302, { Location: auth_url });
+    res.writeHead(302, { Location: authUrl });
     res.end();
-  } else if (req_pathname == redirect_uri_pathname) {
-    const req_code = req_query.code;
+  } else if (reqPathname == redirectUriPathname) {
+    console.log("Redirected to: ", redirectUriPathname);
+    const reqCode = reqQuery.code;
 
-    const path_query =
+    const pathQuery =
       "grant_type=authorization_code&" +
       "code=" +
-      req_code +
+      reqCode +
       "&" +
       "redirect_uri=" +
-      encodeURIComponent(redirect_uri) +
+      encodeURIComponent(redirectUri) +
       "&" +
       "client_id=" +
-      client_id +
+      clientId +
       "&" +
       "client_secret=" +
-      client_secret;
+      clientSecret;
 
     const method = "POST";
     const hostname = "www.linkedin.com";
-    const path = "/oauth/v2/accessToken?" + path_query;
+    const path = "/oauth/v2/accessToken?" + pathQuery;
     const headers = {
       "Content-Type": "x-www-form-urlencoded",
     };
     const body = "";
     _request(method, hostname, path, headers, body)
-      .then((r) => {
+      .then(async (r) => {
         if (r.status == 200) {
-          const access_token = JSON.parse(r.body).access_token;
+          const accessToken = JSON.parse(r.body).access_token;
 
-          updateGitHubSecret(access_token);
+          await updateGitHubSecret(accessToken);
 
           res.writeHead(200, { "content-type": "text/html" });
           res.write("Access token retrieved. You can close this page");
           console.log("Access token retrieved.");
-          res.end();
+          res.end(() => {
+            console.log("Server is closing after successful token retrieval.");
+            server.close();
+          });
         } else {
-          console.error("Auth. Response Error - " + r.status + JSON.stringify(r.body));
+          console.error(
+            "Auth. Response Error - " + r.status + JSON.stringify(r.body)
+          );
           res.writeHead(r.status, { "content-type": "text/html" });
           res.write(r.status + " Internal Server Error");
-          res.end();
+          res.end(() => {
+            console.log("Server is closing after response error.");
+            server.close();
+          });
         }
       })
       .catch((e) => {
         console.error("Auth. Request Error - " + e);
         res.writeHead(500, { "content-type": "text/html" });
         res.write("500 Internal Server Error");
-        res.end();
+        res.end(() => {
+          console.log("Server is closing after request error.");
+          server.close();
+        });
       });
   } else {
     server.close();
@@ -98,18 +110,26 @@ server.on("listening", async () => {
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto("http://localhost:3000");
+  await page.goto("http://127.0.0.1:3000");
 
   await page.waitForSelector("#username");
-  await page.type("#username", LINKEDIN_USERNAME);
+  await page.type("#username", linkedInUsername);
 
   await page.waitForSelector("#password");
-  await page.type("#password", LINKEDIN_PASSWORD);
+  await page.type("#password", linkedInPassword);
 
   await Promise.all([
     page.waitForNavigation(),
     page.click(".btn__primary--large"),
   ]);
+
+  const serverResponse = new Promise((resolve) => {
+    server.on("close", () => {
+      console.log("Server closed, proceeding to close browser");
+      resolve();
+    });
+  });
+  await serverResponse;
 
   await browser.close();
 });

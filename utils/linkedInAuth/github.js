@@ -35,7 +35,7 @@ ${error.message}`
   }
 };
 
-const putGitHubSecret = async (secretValue) => {
+export const updateGitHubSecret = async (secretValue) => {
   await _sodium.ready;
   const sodium = _sodium;
   const { key, key_id } = await getRepoPublicKey();
@@ -64,6 +64,7 @@ const putGitHubSecret = async (secretValue) => {
         },
       }
     );
+    console.log("GitHub - Secret Updated");
   } catch (error) {
     await sendEmail(
       "GitHub - Secret Update Error",
@@ -73,10 +74,4 @@ ${error.message}`
     );
     process.exit(1);
   }
-};
-
-export const updateGitHubSecret = (secretValue) => {
-  putGitHubSecret(secretValue).then(() => {
-    console.log("GitHub - Secret Updated");
-  });
 };

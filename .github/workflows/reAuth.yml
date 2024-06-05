@@ -2,10 +2,10 @@ name: ReAuth LinkedIn
 
 on:
   schedule:
-    - cron: "13 1 5 * *"
+    - cron: "36 7 5 * *"
 
 jobs:
-  fetch_publish_content:
+  reauth_linkedin:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Fetch and publish content
+      - name: Install chromium (Ubuntu)
+        run: sudo apt-get install -y chromium-browser
+
+      - name: ReAuth LinkedIn Access Token
         env:
           LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
           LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
