@@ -2,7 +2,7 @@ name: ReAuth LinkedIn
 
 on:
   schedule:
-    - cron: "36 7 5 * *"
+    - cron: "46 18 5 * *"
 
 jobs:
   reauth_linkedin:
@@ -17,7 +17,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
-      - name: Install dependencies
+      - name: Install project dependencies
         run: npm install
 
       - name: Install chromium (Ubuntu)
