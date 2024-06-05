@@ -26,8 +26,8 @@ A Nodejs-based project which automates the process of fetching blog and social m
    1. [GitHub](#-github)
 1. [Notion Setup](#notion-setup)
 1. [Usage Instructions](#usage-instructions)
-    1. [Local Setup](#local-setup)
-    1. [Github Actions](#github-actions)
+   1. [Local Setup](#local-setup)
+   1. [Github Actions](#github-actions)
 1. [Contributions](#contributions)
 1. [License](#license)
 
@@ -107,11 +107,11 @@ Follow the steps [@humanwhocodes](https://humanwhocodes.com/blog/2023/04/automat
 
 ### 🚀 LinkedIn
 
-For the automated re-auth to work, the [Two-step verification](https://www.linkedin.com/mypreferences/d/two-factor-authentication) needs to be turned off. Your email & password below will be used for re-auth with LinkedIn (automated monthly - in headless mode - GitHub Actions). Post re-auth, the access token will be updated in the GitHub secrets via API call (details below).
+For the automated re-auth to work, the [Two-step verification](https://www.linkedin.com/mypreferences/d/two-factor-authentication) needs to be turned off. Your email & password below will be used for re-auth with LinkedIn. Post re-auth, the access token will be updated in the GitHub secrets via API call (details below).
 
 **Reason**: The access token expires in 2 months. Btw, GitHub secrets are fully encrypted.
 
-**_Alternative_**: To manually update GitHub secrets after performing a re-auth (before the access token expires) - in that case, no need to add the email & password below to your GitHub secrets. **Not to be discussed any further.**
+**_Alternative_**: To manually update GitHub secrets after performing a re-auth (before the access token expires) - in that case, no need to add the email & password below to your GitHub secrets. **_This is the preferred way right now._**
 
 - `LINKEDIN_USERNAME`: Your LinkedIn email
 - `LINKEDIN_PASSWORD`: Your LinkedIn password
@@ -142,11 +142,7 @@ node utils/linkedInAuth/auth.js
 
 <br>
 
-This will directly update the GitHub secrets via API call.
-
-**Note**: Check [line 70](https://github.com/siddhant-vij/Content-Amplify-Hub/blob/1ee2d29d271f16665e7c154e2e0722599c6b05dc/utils/linkedInAuth/auth.js#L70)
-
-But, if you need to further develop this project or work locally - you can add a line to console.log the access_token to be saved to your .env file (already added in .gitignore):
+This will directly update the GitHub secrets via API call & also the local .env file with the access_token (required as ReAuth is only done locally).
 
 - `LINKEDIN_ACCESS_TOKEN`
 
@@ -188,6 +184,7 @@ To be run only once to get the URN (in the terminal) for the LinkedIn User with 
 ## Notion Setup
 
 The following images will explain how to setup your Notion DB so that it integrates with the Content Amplify Hub.
+
 - Image 1: Notion DB Page Properties (with Buttons)
 
 Hashnode Tag IDs: https://github.com/Hashnode/support/blob/main/misc/tags.json
@@ -222,12 +219,11 @@ npm start
 
 ### GitHub Actions
 
-You can clone this repository. For GitHub Actions to work, add all of the above secrets to your GitHub secrets (under Repository secrets) at
+You can clone this repository. For GitHub Actions to work, add the workflow secrets to your GitHub Repository secrets at
 
 **<a style="text-decoration: none; color: inherit; cursor: inherit;">
 https://github.com/{GitHub-Username}/{Repository-Name}/settings/secrets/actions
 </a>**
-
 
 Here's the cron schedule set up in GitHub Actions. Change it according to your needs:
 
@@ -237,8 +233,8 @@ Here's the cron schedule set up in GitHub Actions. Change it according to your n
   - cron: "23 6 \* \* \*"
   - cron: "37 10 \* \* \*"
   - cron: "43 14 \* \* \*"
-- For reAuth workflow:
-  - To be run once every month on 5th Day at 01:13am. This is to ensure that the access token is updated in the GitHub secrets, which expires in 2 months.
+- For reminder workflow:
+  - To be run once every month which will send re-auth email reminder to the user - to perform the necessary steps locally. This is to ensure that the access token is updated in the GitHub secrets, which expires in 2 months.
 
 <br>
 
