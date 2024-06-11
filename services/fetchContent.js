@@ -40,7 +40,7 @@ export const fetchContent = async (notionData) => {
         "HN Tag IDs"
       ].multi_select.map((tag) => ({ id: tag.name }));
       notionData.hashnodeContent.metaTags.title =
-        pageDetails.properties["SEO Title"].rich_text[0].plain_text;
+        pageDetails.properties["SEO Title"].formula.string;
       notionData.hashnodeContent.metaTags.description =
         pageDetails.properties["SEO Description"].rich_text[0].plain_text;
       notionData.hashnodeContent.metaTags.image =
