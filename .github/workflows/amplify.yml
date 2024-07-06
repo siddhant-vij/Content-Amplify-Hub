@@ -46,4 +46,5 @@ jobs:
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
         run: npm start
