@@ -17,12 +17,19 @@ export const publishContent = async (notionData) => {
       } catch (error) {
         notionData.devToContent.publishedUrl = "";
       }
-      await updateNotionPageUrl(
-        notionData.pageId,
-        notionData.devToContent.publishedUrl,
-        "",
-        ""
-      );
+      if (notionData.env !== "production") {
+        console.log(
+          "DevTo - Published URL:",
+          notionData.devToContent.publishedUrl
+        );
+      } else {
+        await updateNotionPageUrl(
+          notionData.pageId,
+          notionData.devToContent.publishedUrl,
+          "",
+          ""
+        );
+      }
 
       try {
         notionData.hashnodeContent.publishedUrl = await publishHashnode(
@@ -31,52 +38,83 @@ export const publishContent = async (notionData) => {
       } catch (error) {
         notionData.hashnodeContent.publishedUrl = "";
       }
-      await updateNotionPageUrl(
-        notionData.pageId,
-        "",
-        notionData.hashnodeContent.publishedUrl,
-        ""
-      );
+      if (notionData.env !== "production") {
+        console.log(
+          "Hashnode - Published URL:",
+          notionData.hashnodeContent.publishedUrl
+        );
+      } else {
+        await updateNotionPageUrl(
+          notionData.pageId,
+          "",
+          notionData.hashnodeContent.publishedUrl,
+          ""
+        );
+      }
 
       notionData.mediumContent.publishedUrl = await publishMedium(
         notionData.mediumContent
       );
-      await updateNotionPageUrl(
-        notionData.pageId,
-        "",
-        "",
-        notionData.mediumContent.publishedUrl
-      );
+      if (notionData.env !== "production") {
+        console.log(
+          "Medium - Published URL:",
+          notionData.mediumContent.publishedUrl
+        );
+      } else {
+        await updateNotionPageUrl(
+          notionData.pageId,
+          "",
+          "",
+          notionData.mediumContent.publishedUrl
+        );
+      }
       break;
     case "Twitter":
       notionData.twitterContent.publishedUrl = await publishTwitter(
         notionData.twitterContent
       );
-
-      await updateNotionPageUrl(
-        notionData.pageId,
-        notionData.twitterContent.publishedUrl,
-        "",
-        ""
-      );
+      if (notionData.env !== "production") {
+        console.log(
+          "Twitter - Published URL:",
+          notionData.twitterContent.publishedUrl
+        );
+      } else {
+        await updateNotionPageUrl(
+          notionData.pageId,
+          notionData.twitterContent.publishedUrl,
+          "",
+          ""
+        );
+      }
       break;
     case "LinkedIn":
       notionData.linkedInContent.publishedUrl = await publishLinkedIn(
         notionData.linkedInContent,
         notionData.pageId
       );
-      await updateNotionPageUrl(
-        notionData.pageId,
-        notionData.linkedInContent.publishedUrl,
-        "",
-        ""
-      );
+      if (notionData.env !== "production") {
+        console.log(
+          "LinkedIn - Published URL:",
+          notionData.linkedInContent.publishedUrl
+        );
+      } else {
+        await updateNotionPageUrl(
+          notionData.pageId,
+          notionData.linkedInContent.publishedUrl,
+          "",
+          ""
+        );
+      }
       break;
   }
-  await sendEmail(
-    "Notion Update - Success",
-    `Updated Page with URLs: https://www.notion.so/${
-      process.env.NOTION_DOMAIN
-    }/${notionData.pageId.replace(/-/g, "")}`
-  );
+  if (notionData.env === "production") {
+    await sendEmail(
+      "Notion Update - Success",
+      `Updated Page with URLs: https://www.notion.so/${
+        process.env.NOTION_DOMAIN
+      }/${notionData.pageId.replace(/-/g, "")}`
+    );
+  } else {
+    process.exit(0);
+  }
 };

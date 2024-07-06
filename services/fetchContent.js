@@ -88,7 +88,5 @@ export const fetchContent = async (notionData) => {
       }
       break;
   }
-  console.log(notionData);
-  // return notionData;
-  process.exit(0);
+  return notionData;
 };
