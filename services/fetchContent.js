@@ -7,9 +7,11 @@ const removeMarkdownLinks = (inputMdStr) =>
   inputMdStr.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$2");
 
 export const fetchContent = async (notionData) => {
-  const pageDetails = await getPageProperties();
+  const pageDetails = await getPageProperties(notionData);
   notionData.channel = pageDetails.properties["Channel"].select.name;
-  notionData.pageId = pageDetails.id;
+  if (notionData.env === "production") {
+    notionData.pageId = pageDetails.id;
+  }
   switch (notionData.channel) {
     case "Blog Post":
       const contentBodyMd = await getPageContentMarkdown(notionData.pageId);
@@ -86,5 +88,7 @@ export const fetchContent = async (notionData) => {
       }
       break;
   }
-  return notionData;
+  console.log(notionData);
+  // return notionData;
+  process.exit(0);
 };

@@ -4,6 +4,7 @@ import { publishContent } from "./services/publishContent.js";
 import { sendEmail } from "./utils/failure/email.js";
 
 const notionData = {
+  env: process.env.ENVIRONMENT,
   pageId: "",
   channel: "",
   devToContent: {
@@ -59,6 +60,16 @@ const notionData = {
 };
 
 const main = async () => {
+  if (notionData.env !== "production") {
+    console.log("Enter the Page Link ID: ");
+    const pageLinkId = await new Promise((resolve) => {
+      process.stdin.once("data", (data) => {
+        resolve(data.toString().trim());
+      });
+    });
+    const pageId = `${pageLinkId.slice(0, 8)}-${pageLinkId.slice(8,12)}-${pageLinkId.slice(12, 16)}-${pageLinkId.slice(16,20)}-${pageLinkId.slice(20)}`;
+    notionData.pageId = pageId;
+  }
   try {
     await fetchContent(notionData);
   } catch (error) {

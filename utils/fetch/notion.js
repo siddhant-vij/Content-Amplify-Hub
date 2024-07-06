@@ -8,34 +8,41 @@ const notion = new Client({
 
 const databaseId = process.env.NOTION_DB_ID;
 
-export const getPageProperties = async () => {
-  const now = new Date();
-  try {
-    const response = await notion.databases.query({
-      database_id: databaseId,
-      filter: {
-        property: "Publishing Date",
-        date: {
-          is_not_empty: true,
-          after: now,
-          before: new Date(now.getTime() + 1 * 60 * 60 * 1000),
-        },
-      },
-      sorts: [
-        {
-          property: "Publishing Date",
-          direction: "ascending",
-        },
-      ],
+export const getPageProperties = async (notionData) => {
+  if (notionData.env !== "production") {
+    const response = await notion.pages.retrieve({
+      page_id: notionData.pageId,
     });
-    if (response.results.length === 0) {
-      await sendEmail("Nothing to post", "No results found");
+    return response;
+  } else {
+    const now = new Date();
+    try {
+      const response = await notion.databases.query({
+        database_id: databaseId,
+        filter: {
+          property: "Publishing Date",
+          date: {
+            is_not_empty: true,
+            after: now,
+            before: new Date(now.getTime() + 1 * 60 * 60 * 1000),
+          },
+        },
+        sorts: [
+          {
+            property: "Publishing Date",
+            direction: "ascending",
+          },
+        ],
+      });
+      if (response.results.length === 0) {
+        await sendEmail("Nothing to post", "No results found");
+        process.exit(1);
+      }
+      return response.results[0];
+    } catch (error) {
+      await sendEmail("Notion Fetch - API Error", error.message);
       process.exit(1);
     }
-    return response.results[0];
-  } catch (error) {
-    await sendEmail("Notion Fetch - API Error", error.message);
-    process.exit(1);
   }
 };
 
