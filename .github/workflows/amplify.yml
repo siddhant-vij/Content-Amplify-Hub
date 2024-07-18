@@ -2,7 +2,7 @@ name: Amplify Content
 
 on:
   schedule:
-    - cron: "17 7 * * 6"
+    - cron: "17 7 * * 2,6"
     - cron: "19 8 * * *"
     - cron: "23 6 * * *"
     - cron: "37 10 * * *"
