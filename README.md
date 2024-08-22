@@ -67,7 +67,8 @@ To obtain the token below, follow these steps:
 Visit https://hashnode.com/settings/developer
 
 - `HASHNODE_TOKEN`: In the "Personal Access Token" section create a new token by clicking on "Generate new token"
-- `HASHNODE_PUBLICATION_ID`: To find the publication ID, navigate to your blog home page URL. Open the DevTools Console:
+- `HASHNODE_PUBLICATION_ID`: **This worked as on 06-Jun-2024.**
+If it doesn't, figure out a way. To find the publication ID, navigate to your blog home page URL. Open the DevTools Console:
 
 ```javascript
 console.log(window.__NEXT_DATA__.props.pageProps.publication.id);
@@ -109,7 +110,7 @@ Follow the steps [@humanwhocodes](https://humanwhocodes.com/blog/2023/04/automat
 
 For the automated re-auth to work, the [Two-step verification](https://www.linkedin.com/mypreferences/d/two-factor-authentication) needs to be turned off. Your email & password below will be used for re-auth with LinkedIn. Post re-auth, the access token will be updated in the GitHub secrets via API call (details below).
 
-**Reason**: The access token expires in 2 months. Btw, GitHub secrets are fully encrypted.
+**Reason**: The access token expires in 2 months.
 
 **_Alternative_**: To manually update GitHub secrets after performing a re-auth (before the access token expires) - in that case, no need to add the email & password below to your GitHub secrets. **_This is the preferred way right now._**
 
@@ -145,6 +146,12 @@ node utils/linkedInAuth/auth.js
 This will directly update the GitHub secrets via API call & also the local .env file with the access_token (required as ReAuth is only done locally).
 
 - `LINKEDIN_ACCESS_TOKEN`
+
+<br>
+
+**Automated LinkedIn Re-Auth Worflow (on GA in production) will not be enabled in the future** as LinkedIn creates a 6-digit code-based MFA (even if two-factor authentication is turned off) - as a security measure which needs to be manually intervened to process further. This doesn't happen when run locally - maybe its location based trigger. Not sure - and thus, local automated reauth is preferred.
+
+<img src="https://i.imgur.com/Qbpauxk.png">
 
 <br>
 
@@ -227,14 +234,8 @@ https://github.com/{GitHub-Username}/{Repository-Name}/settings/secrets/actions
 
 Here's the cron schedule set up in GitHub Actions. Change it according to your needs:
 
-- For amplify workflow. The following determines when the workflow runs. It's the user's job to set it up in the Notion so that the blog posts are published on Saturday every week & social media posts go live daily as below:
-  - cron: "17 7 \* \* 6"
-  - cron: "19 8 \* \* \*"
-  - cron: "23 6 \* \* \*"
-  - cron: "37 10 \* \* \*"
-  - cron: "43 14 \* \* \*"
-- For reminder workflow:
-  - To be run once every month which will send re-auth email reminder to the user - to perform the necessary steps locally. This is to ensure that the access token is updated in the GitHub secrets, which expires in 2 months.
+- For amplify workflow. The following determines when the workflow runs. It's the user's job to set it up in the Notion so that the blog posts are published on Tuesday & Saturday every week & social media posts go live daily. See the [Amplify Workflow](https://github.com/siddhant-vij/Content-Amplify-Hub/blob/main/.github/workflows/amplify.yml) for more details.
+- For reminder workflow: To be run once every month which will send re-auth email reminder to the user - to perform the necessary steps locally. This is to ensure that the access token is updated in the GitHub secrets, which expires in 2 months. See the [Reminder Workflow](https://github.com/siddhant-vij/Content-Amplify-Hub/blob/main/.github/workflows/reminder.yml) for more details.
 
 <br>
 
