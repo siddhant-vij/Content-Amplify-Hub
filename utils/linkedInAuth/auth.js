@@ -11,6 +11,7 @@ const linkedInUsername = process.env.LINKEDIN_USERNAME;
 const linkedInPassword = process.env.LINKEDIN_PASSWORD;
 const clientId = process.env.LINKEDIN_CLIENT_ID;
 const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
+const environment = process.env.ENVIRONMENT;
 const authBaseUrl = "https://www.linkedin.com/oauth/v2/authorization";
 const redirectUri = "http://127.0.0.1:3000/auth";
 const responseType = "code";
@@ -74,13 +75,15 @@ const server = http.createServer(async (req, res) => {
 
           await updateGitHubSecret(accessToken);
 
-          dotenv.config();
-          const envConfig = dotenv.parse(fs.readFileSync(".env"));
-          envConfig.LINKEDIN_ACCESS_TOKEN = accessToken;
-          const newEnvConfig = Object.keys(envConfig)
-            .map((key) => `${key}=${envConfig[key]}`)
-            .join("\n");
-          fs.writeFileSync(".env", newEnvConfig);
+          if (environment !== "production") {
+            dotenv.config();
+            const envConfig = dotenv.parse(fs.readFileSync(".env"));
+            envConfig.LINKEDIN_ACCESS_TOKEN = accessToken;
+            const newEnvConfig = Object.keys(envConfig)
+              .map((key) => `${key}=${envConfig[key]}`)
+              .join("\n");
+            fs.writeFileSync(".env", newEnvConfig);
+          }
 
           res.writeHead(200, { "content-type": "text/html" });
           res.write("Access token retrieved. You can close this page");
@@ -136,7 +139,16 @@ const runPuppeteer = async () => {
     page.click(".btn__primary--large"),
   ]);
 
-  await browser.close();
+  await checkUrlCode(page.url(), browser);
+};
+
+const checkUrlCode = async (url, browser) => {
+  if (url.includes("code=")) {
+    console.log("Successfully logged in to LinkedIn");
+    await browser.close();
+  } else {
+    setTimeout(() => checkUrlCode(url, browser), 1000);
+  }
 };
 
 // https request wrapper
