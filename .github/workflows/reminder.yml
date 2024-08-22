@@ -2,7 +2,7 @@ name: ReAuth Reminder
 
 on:
   schedule:
-    - cron: "17 20 5 * *"
+    - cron: "53 9 5 * *"
 
 jobs:
   reauth_reminder:

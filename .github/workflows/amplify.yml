@@ -2,11 +2,11 @@ name: Amplify Content
 
 on:
   schedule:
-    - cron: "17 7 * * 2,6"
-    - cron: "19 8 * * *"
-    - cron: "23 6 * * *"
-    - cron: "37 10 * * *"
-    - cron: "43 14 * * *"
+    - cron: "53 0 * * 2,6"
+    - cron: "43 3 * * *"
+    - cron: "53 6 * * *"
+    - cron: "47 12 * * *"
+    - cron: "47 15 * * *"
 
 jobs:
   fetch_publish_content:
