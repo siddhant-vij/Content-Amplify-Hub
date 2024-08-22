@@ -144,7 +144,6 @@ const runPuppeteer = async () => {
 
 const checkUrlCode = async (url, browser) => {
   if (url.includes("code=")) {
-    console.log("Successfully logged in to LinkedIn");
     await browser.close();
   } else {
     setTimeout(() => checkUrlCode(url, browser), 1000);
