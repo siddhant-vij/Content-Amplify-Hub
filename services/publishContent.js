@@ -4,6 +4,9 @@ import { publishMedium } from "../utils/publish/medium.js";
 import { publishTwitter } from "../utils/publish/twitter.js";
 import { publishLinkedIn } from "../utils/publish/linkedIn.js";
 
+import { updateTwitter } from "./updateSocials.js";
+import { updateLinkedIn } from "./updateSocials.js";
+
 import { updateNotionPageUrl } from "../utils/success/notion.js";
 import { sendEmail } from "../utils/failure/email.js";
 
@@ -27,6 +30,8 @@ export const publishContent = async (notionData) => {
           notionData.pageId,
           notionData.devToContent.publishedUrl,
           "",
+          "",
+          "",
           ""
         );
       }
@@ -48,6 +53,8 @@ export const publishContent = async (notionData) => {
           notionData.pageId,
           "",
           notionData.hashnodeContent.publishedUrl,
+          "",
+          "",
           ""
         );
       }
@@ -65,9 +72,14 @@ export const publishContent = async (notionData) => {
           notionData.pageId,
           "",
           "",
-          notionData.mediumContent.publishedUrl
+          notionData.mediumContent.publishedUrl,
+          "",
+          ""
         );
       }
+
+      await updateTwitter(notionData);
+      await updateLinkedIn(notionData);
       break;
     case "Twitter":
       notionData.twitterContent.publishedUrl = await publishTwitter(
@@ -82,6 +94,8 @@ export const publishContent = async (notionData) => {
         await updateNotionPageUrl(
           notionData.pageId,
           notionData.twitterContent.publishedUrl,
+          "",
+          "",
           "",
           ""
         );
@@ -101,6 +115,8 @@ export const publishContent = async (notionData) => {
         await updateNotionPageUrl(
           notionData.pageId,
           notionData.linkedInContent.publishedUrl,
+          "",
+          "",
           "",
           ""
         );

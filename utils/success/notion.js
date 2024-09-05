@@ -5,7 +5,7 @@ const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-const buildNotionProperties = (contentUrl, hnUrl, mediumUrl) => {
+const buildNotionProperties = (contentUrl, hnUrl, mediumUrl, twitterUpdateUrl, linkedInUpdateUrl) => {
   const properties = {};
 
   if (contentUrl !== "") {
@@ -26,6 +26,18 @@ const buildNotionProperties = (contentUrl, hnUrl, mediumUrl) => {
     };
   }
 
+  if (twitterUpdateUrl !== "") {
+    properties["Twitter Update"] = {
+      url: twitterUpdateUrl,
+    };
+  }
+
+  if (linkedInUpdateUrl !== "") {
+    properties["LinkedIn Update"] = {
+      url: linkedInUpdateUrl,
+    };
+  }
+
   return properties;
 };
 
@@ -33,13 +45,15 @@ export const updateNotionPageUrl = async (
   pageId,
   contentUrl,
   hnUrl,
-  mediumUrl
+  mediumUrl,
+  twitterUpdateUrl,
+  linkedInUpdateUrl
 ) => {
-  if (contentUrl === "" && hnUrl === "" && mediumUrl === "") {
+  if (contentUrl === "" && hnUrl === "" && mediumUrl === "" && twitterUpdateUrl === "" && linkedInUpdateUrl === "") {
     return;
   }
 
-  const properties = buildNotionProperties(contentUrl, hnUrl, mediumUrl);
+  const properties = buildNotionProperties(contentUrl, hnUrl, mediumUrl, twitterUpdateUrl, linkedInUpdateUrl);
 
   try {
     await notion.pages.update({
