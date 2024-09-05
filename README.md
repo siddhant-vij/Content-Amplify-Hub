@@ -196,7 +196,7 @@ The following images will explain how to setup your Notion DB so that it integra
 
 Hashnode Tag IDs: https://github.com/Hashnode/support/blob/main/misc/tags.json
 
-<img src="https://i.imgur.com/M6dlWIg.png" width="800px">
+<img src="https://i.imgur.com/86wnn3g.png" width="800px">
 
 - Image 2: Blog Post Button
 
