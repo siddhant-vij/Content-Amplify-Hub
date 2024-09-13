@@ -10,76 +10,89 @@ import { updateLinkedIn } from "./updateSocials.js";
 import { updateNotionPageUrl } from "../utils/success/notion.js";
 import { sendEmail } from "../utils/failure/email.js";
 
-export const publishContent = async (notionData) => {
+export const publishContent = async (
+  notionData,
+  blogPlatform,
+  socialPlatform
+) => {
   switch (notionData.channel) {
     case "Blog Post":
-      try {
-        notionData.devToContent.publishedUrl = await publishDevTo(
-          notionData.devToContent
-        );
-      } catch (error) {
-        notionData.devToContent.publishedUrl = "";
-      }
-      if (notionData.env !== "production") {
-        console.log(
-          "DevTo - Published URL:",
-          notionData.devToContent.publishedUrl
-        );
-      } else {
-        await updateNotionPageUrl(
-          notionData.pageId,
-          notionData.devToContent.publishedUrl,
-          "",
-          "",
-          "",
-          ""
-        );
-      }
-
-      try {
-        notionData.hashnodeContent.publishedUrl = await publishHashnode(
-          notionData.hashnodeContent
-        );
-      } catch (error) {
-        notionData.hashnodeContent.publishedUrl = "";
-      }
-      if (notionData.env !== "production") {
-        console.log(
-          "Hashnode - Published URL:",
-          notionData.hashnodeContent.publishedUrl
-        );
-      } else {
-        await updateNotionPageUrl(
-          notionData.pageId,
-          "",
-          notionData.hashnodeContent.publishedUrl,
-          "",
-          "",
-          ""
-        );
+      if (blogPlatform === "devTo" || blogPlatform === "all") {
+        try {
+          notionData.devToContent.publishedUrl = await publishDevTo(
+            notionData.devToContent
+          );
+        } catch (error) {
+          notionData.devToContent.publishedUrl = "";
+        }
+        if (notionData.env !== "production") {
+          console.log(
+            "DevTo - Published URL:",
+            notionData.devToContent.publishedUrl
+          );
+        } else {
+          await updateNotionPageUrl(
+            notionData.pageId,
+            notionData.devToContent.publishedUrl,
+            "",
+            "",
+            "",
+            ""
+          );
+        }
       }
 
-      notionData.mediumContent.publishedUrl = await publishMedium(
-        notionData.mediumContent
-      );
-      if (notionData.env !== "production") {
-        console.log(
-          "Medium - Published URL:",
-          notionData.mediumContent.publishedUrl
+      if (blogPlatform === "all") {
+        try {
+          notionData.hashnodeContent.publishedUrl = await publishHashnode(
+            notionData.hashnodeContent
+          );
+        } catch (error) {
+          notionData.hashnodeContent.publishedUrl = "";
+        }
+        if (notionData.env !== "production") {
+          console.log(
+            "Hashnode - Published URL:",
+            notionData.hashnodeContent.publishedUrl
+          );
+        } else {
+          await updateNotionPageUrl(
+            notionData.pageId,
+            "",
+            notionData.hashnodeContent.publishedUrl,
+            "",
+            "",
+            ""
+          );
+        }
+
+        notionData.mediumContent.publishedUrl = await publishMedium(
+          notionData.mediumContent
         );
-      } else {
-        await updateNotionPageUrl(
-          notionData.pageId,
-          "",
-          "",
-          notionData.mediumContent.publishedUrl,
-          "",
-          ""
-        );
+        if (notionData.env !== "production") {
+          console.log(
+            "Medium - Published URL:",
+            notionData.mediumContent.publishedUrl
+          );
+        } else {
+          await updateNotionPageUrl(
+            notionData.pageId,
+            "",
+            "",
+            notionData.mediumContent.publishedUrl,
+            "",
+            ""
+          );
+        }
       }
 
-      await updateTwitter(notionData);
-      await updateLinkedIn(notionData);
+      if (socialPlatform === "twitter" || socialPlatform === "all") {
+        await updateTwitter(notionData);
+      }
+
+      if (socialPlatform === "all") {
+        await updateLinkedIn(notionData);
+      }
       break;
     case "Twitter":
       notionData.twitterContent.publishedUrl = await publishTwitter(

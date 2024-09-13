@@ -77,7 +77,8 @@ const main = async () => {
     process.exit(1);
   }
   try {
-    await publishContent(notionData);
+    await publishContent(notionData, "devTo", "twitter");
+    // await publishContent(notionData, "all", "all");
   } catch (error) {
     await sendEmail("Publish Content - Error", error.message);
   }

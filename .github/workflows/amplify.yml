@@ -2,11 +2,11 @@ name: Amplify Content
 
 on:
   schedule:
-    - cron: "53 0 * * 2,6"
-    - cron: "43 3 * * *"
-    - cron: "53 6 * * 0,1,3,4,5"
-    - cron: "47 12 * * 0,1,3,4,5"
-    - cron: "47 15 * * *"
+    - cron: "53 0 * * 2,6" # Blog Post
+    - cron: "43 3 * * *" # Twitter Morning
+    - cron: "53 6 * * 0,1,3,4,5" # Twitter Afternoon
+    # - cron: "47 12 * * 0,1,3,4,5" # LinkedIn
+    - cron: "47 15 * * *" # Twitter Evening
 
 jobs:
   fetch_publish_content:
