@@ -13,15 +13,16 @@ on:
     # - cron: "53 0 * * 2,6" # Blog Post
     # - cron: "43 3 * * *" # Twitter Morning
     # - cron: "53 6 * * 0,1,3,4,5" # Twitter Afternoon
-    # # - cron: "47 12 * * 0,1,3,4,5" # LinkedIn
     # - cron: "47 15 * * *" # Twitter Evening
 
     # Twitter only
-    # - cron: "53 0 * * 2,6" # Blog Post
-    - cron: "43 3 * * *" # Twitter Morning
-    - cron: "53 6 * * *" # Twitter Afternoon
-    # - cron: "47 12 * * 0,1,3,4,5" # LinkedIn
-    - cron: "47 15 * * *" # Twitter Evening
+    - cron: "47 0 * * *"
+    - cron: "47 3 * * *"
+    - cron: "47 6 * * *"
+    - cron: "47 9 * * *"
+    - cron: "47 12 * * *"
+    - cron: "47 15 * * *"
+    - cron: "47 18 * * *"
 
 jobs:
   fetch_publish_content:
