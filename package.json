@@ -4,7 +4,8 @@
   "description": "Automated content cross posting from Notion Database to Dev.to, Hashnode, Medium, Twitter, and LinkedIn using GitHub Actions.",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "auth": "node utils/linkedInAuth/auth.js"
   },
   "type": "module",
   "dependencies": {
